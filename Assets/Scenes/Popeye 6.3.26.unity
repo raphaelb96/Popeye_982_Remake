@@ -260,6 +260,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.7714117, y: 2.4607275, z: 0.8940686}
   m_Center: {x: -0.0027876208, y: 1.2321435, z: 0.002787657}
+--- !u!1 &46851568
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 46851569}
+  m_Layer: 8
+  m_Name: ThrowPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &46851569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 46851568}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.5, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3893294198338521861}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &47490709
 GameObject:
   m_ObjectHideFlags: 0
@@ -4237,6 +4268,75 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7282534475126448482, guid: 9c13fa9d02cef354fb97ebff53bf7a23, type: 3}
   m_PrefabInstance: {fileID: 1487402851}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1493469804
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1493469805}
+  - component: {fileID: 1493469807}
+  - component: {fileID: 1493469806}
+  m_Layer: 8
+  m_Name: PunchHitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1493469805
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1493469804}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.5, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3893294199639930361}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1493469806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1493469804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64d8f64b3aecbc04b8b396e8c2c48c8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MeleeHitbox
+  targetTag: Player2
+  damageAmount: 1
+  canDestroyProjectiles: 1
+--- !u!65 &1493469807
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1493469804}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.4, y: 0.2, z: 0.18}
+  m_Center: {x: 8.23422e-11, y: 0.03017278, z: 0.16869842}
 --- !u!1 &1501722440
 GameObject:
   m_ObjectHideFlags: 0
@@ -7612,6 +7712,7 @@ Transform:
   - {fileID: 8338988566756141283}
   - {fileID: 8002264679960416215}
   - {fileID: 272993189265388956}
+  - {fileID: 46851569}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -83.25, z: 0}
 --- !u!4 &3893294199639930361
@@ -7630,6 +7731,7 @@ Transform:
   - {fileID: 8338988565591873055}
   - {fileID: 8002264680806281515}
   - {fileID: 272993188152429408}
+  - {fileID: 1493469805}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 89.619, z: 0}
 --- !u!4 &3964097221240170239
@@ -7994,10 +8096,10 @@ GameObject:
   m_Component:
   - component: {fileID: 3893294198338521861}
   - component: {fileID: 6982812146802577791}
-  - component: {fileID: 6982812146802577793}
   - component: {fileID: 6982812146802577792}
   - component: {fileID: 6982812146802577794}
   - component: {fileID: 6982812146802577795}
+  - component: {fileID: 6982812146802577796}
   m_Layer: 8
   m_Name: PlayerBluto
   m_TagString: Player2
@@ -8015,9 +8117,10 @@ GameObject:
   m_Component:
   - component: {fileID: 3893294199639930361}
   - component: {fileID: 6982812147933622147}
-  - component: {fileID: 6982812147933622149}
   - component: {fileID: 6982812147933622148}
   - component: {fileID: 6982812147933622150}
+  - component: {fileID: 6982812147933622152}
+  - component: {fileID: 6982812147933622151}
   m_Layer: 8
   m_Name: PlayerPopeye
   m_TagString: Player1
@@ -9485,20 +9588,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 0
---- !u!114 &6982812146802577793
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4416926082335166911}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 186b33687397ddf45b48914897248e6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  playerIndex: 1
-  moveSpeed: 5
 --- !u!136 &6982812146802577794
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -9538,8 +9627,20 @@ MonoBehaviour:
   jumpForce: 7
   maxBottles: 5
   currentBottles: 5
-  throwPoint: {fileID: 0}
+  throwPoint: {fileID: 46851569}
   bottlePrefab: {fileID: 0}
+--- !u!114 &6982812146802577796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926082335166911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5ba731886aa774cbd85566d357249b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Billboard
 --- !u!95 &6982812147933622147
 Animator:
   serializedVersion: 7
@@ -9589,20 +9690,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 0
---- !u!114 &6982812147933622149
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4416926083347132227}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 186b33687397ddf45b48914897248e6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  playerIndex: 0
-  moveSpeed: 5
 --- !u!136 &6982812147933622150
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -9626,6 +9713,33 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &6982812147933622151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926083347132227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5ba731886aa774cbd85566d357249b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Billboard
+--- !u!114 &6982812147933622152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926083347132227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df4c261c8a72a141aaf59b466e5c73d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PopeyeController
+  moveSpeed: 5
+  jumpForce: 7
+  isInvincible: 0
 --- !u!4 &6983258930626336602
 Transform:
   m_ObjectHideFlags: 0
