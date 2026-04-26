@@ -11,13 +11,20 @@ public class OliveController : MonoBehaviour
     public GameObject heartPrefab;
     public GameObject bottlePrefab;
     public GameObject spinachPrefab;
-    
+
     public Transform[] spinachSpawnPoints;
     public Transform[] bottleSpawnPoints;
 
     private int heartsThrown = 0;
     private float heartTimer = 0f;
     private bool canAct = false;
+
+    private Vector3 originalScale; // הוספת משתנה לשמירת הגודל המקורי
+
+    private void Awake()
+    {
+        originalScale = transform.localScale; // שמירת הגודל מה-Inspector
+    }
 
     private void OnEnable() => GameManager.OnGameStart += () => canAct = true;
 
@@ -34,8 +41,9 @@ public class OliveController : MonoBehaviour
         transform.Translate(Vector3.right * direction * moveSpeed * Time.deltaTime);
         if (transform.position.x > rightBound) direction = -1;
         else if (transform.position.x < leftBound) direction = 1;
-        
-        transform.localScale = new Vector3(direction, 1, 1);
+
+        // שימוש בגודל המקורי המוחלט כפול הכיוון, ושמירה על Y ו-Z מקוריים
+        transform.localScale = new Vector3(Mathf.Abs(originalScale.x) * direction, originalScale.y, originalScale.z);
     }
 
     private void HandleSpawning()

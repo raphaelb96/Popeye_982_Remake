@@ -23,27 +23,27 @@ public class BottleItem : MonoBehaviour
         if (isProjectile)
         {
             transform.Translate(Vector3.right * moveDirection * projectileSpeed * Time.deltaTime);
-            if (Mathf.Abs(transform.position.x) > 15f) Destroy(gameObject); 
+            if (Mathf.Abs(transform.position.x) > 15f) Destroy(gameObject);
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!isProjectile && other.CompareTag("Player2")) 
+        if (!isProjectile && other.CompareTag("Player2"))
         {
             other.GetComponent<BlutoController>().AddBottle();
             Destroy(gameObject);
         }
-        else if (isProjectile && other.CompareTag("Player1")) 
+        else if (isProjectile && other.CompareTag("Player1"))
         {
-            other.GetComponent<PopeyeController>().ApplyStun(1f);
-            GameManager.Instance.TakeDamage(); 
+            // שיתוק לחצי שנייה וללא ירידת חיים
+            other.GetComponent<PopeyeController>().ApplyStun(0.5f);
             OnBottleSmashed?.Invoke();
             Destroy(gameObject);
         }
     }
 
-    public void Smash() 
+    public void Smash()
     {
         OnBottleSmashed?.Invoke();
         Destroy(gameObject);

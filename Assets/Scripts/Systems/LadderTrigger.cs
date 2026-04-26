@@ -22,6 +22,7 @@ public class LadderTrigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        // ניתוק מיידי מהסולם ברגע שיוצאים מגבולות הטריגר (כולל יציאה מהצדדים)
         if (other.CompareTag("Player1"))
         {
             other.GetComponent<PopeyeController>().SetClimbing(false);
@@ -34,6 +35,7 @@ public class LadderTrigger : MonoBehaviour
 
     private void HandleClimbing(MonoBehaviour controller)
     {
+        // האחיזה הראשונית דורשת קלט אנכי כדי למנוע הידבקות לסולם בזמן הליכה חולפת
         if (Mathf.Abs(InputManager.Instance.PopeyeMove.y) > 0.1f && controller is PopeyeController p) p.SetClimbing(true);
         if (Mathf.Abs(InputManager.Instance.BlutoMove.y) > 0.1f && controller is BlutoController b) b.SetClimbing(true);
     }
