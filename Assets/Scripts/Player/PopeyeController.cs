@@ -242,10 +242,20 @@ public class PopeyeController : MonoBehaviour
     // Grants invincibility and double movement speed for 10 seconds
     private void ActivateSpinachMode()
     {
+        // If the buff is already active, do nothing — can't stack spinach
+        if (isInvincible) return;
+
+        // Activate invincibility — blocks damage and stun for the duration
         isInvincible = true;
-        moveSpeed *= 2f; // Double speed for 10 seconds — reversed in DeactivateSpinachMode
-        // Optional: add a visual effect here (e.g., aura particle, color tint) via VFXManager
-        Invoke(nameof(DeactivateSpinachMode), 10f); // Schedule deactivation after 10 seconds
+
+        // Double movement speed for 10 seconds
+        // DeactivateSpinachMode will divide by 2f to restore the original value
+        moveSpeed *= 2f;
+
+        // Schedule deactivation after 10 seconds (same duration as AudioManager's spinach music)
+        // Invoke calls DeactivateSpinachMode once after the delay, without blocking the main thread
+        Invoke(nameof(DeactivateSpinachMode), 10f);
+
     }
 
     // Called 10 seconds after activation to restore Popeye to normal

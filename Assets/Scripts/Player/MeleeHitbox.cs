@@ -29,6 +29,8 @@ public class MeleeHitbox : MonoBehaviour
     // The BoxCollider on this same GameObject — cached in Awake for repeated use
     private BoxCollider hitCollider;
 
+    public string hitText = "POW!";  // Set per-character in Inspector
+
     // ─── UNITY LIFECYCLE ─────────────────────────────────────────────────────
 
     private void Awake()
@@ -55,16 +57,29 @@ public class MeleeHitbox : MonoBehaviour
         // ── CASE 1: Hit the intended target (enemy player) ───────────────────
         if (other.CompareTag(targetTag))
         {
+            // Spawn floating text at the hit point
+            VFXManager vfx = FindFirstObjectByType<VFXManager>();
+            if (vfx != null) vfx.SpawnFloatingText(other.transform.position, hitText);
+
             // Bluto's hitbox hit Popeye (targetTag = "Player1") → reduce Popeye's HP
             if (targetTag == "Player1")
             {
                 GameManager.Instance.TakeDamage();
             }
-            // Popeye's hitbox hit Bluto (targetTag = "Player2") while spinach is active → apply long stun
-            // The spinach check: only applies the powerful stun if this hitbox belongs to PopeyeController
+            // CASE 1b: Popeye's hitbox hit Bluto (targetTag = "Player2")
+            // Only apply the spinach stun if Popeye is currently in spinach mode (isInvincible = true)
+            // Without spinach, Popeye's punch is harmless to Bluto — no damage, no stun
             else if (targetTag == "Player2" && transform.parent.GetComponent<PopeyeController>())
             {
-                other.GetComponent<BlutoController>().ApplySpinachStun(); // 10-second stun from spinach buff
+                // Get the PopeyeController to check if the spinach buff is active
+                PopeyeController popeye = transform.parent.GetComponent<PopeyeController>();
+
+                if (popeye.isInvincible) // isInvincible is only true during the 10s spinach buff
+                {
+                    // Apply the long spinach stun (10 seconds) — defined in BlutoController.ApplySpinachStun()
+                    other.GetComponent<BlutoController>().ApplySpinachStun();
+                }
+                // else: spinach not active → punch is harmless, nothing happens
             }
         }
         // ── CASE 2: Hit a bottle projectile or floor pickup → smash it ───────
