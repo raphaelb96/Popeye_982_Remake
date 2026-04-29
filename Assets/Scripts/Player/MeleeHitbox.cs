@@ -1,47 +1,90 @@
 // MeleeHitbox.cs
+// A reusable punch hitbox attached as a child of any character with melee attacks.
+// The hitbox starts disabled and is only activated during the punch animation frames
+// via Animation Events (EnableHitbox at frame 5, DisableHitbox at frame 10).
+//
+// Configured per-character via Inspector:
+//   - Popeye's hitbox: targetTag = "Player2", canDestroyProjectiles = true
+//   - Bluto's hitbox:  targetTag = "Player1", canDestroyProjectiles = false
+//
+// On hit, the hitbox checks what it collided with and routes to the correct response.
 using UnityEngine;
 
+// Automatically adds a BoxCollider if one isn't present — prevents null reference errors
 [RequireComponent(typeof(BoxCollider))]
 public class MeleeHitbox : MonoBehaviour
 {
-    public string targetTag; 
+    // The Unity tag of the character this hitbox should damage
+    // Set to "Player1" for Bluto's hitbox (damages Popeye), "Player2" for Popeye's (damages Bluto)
+    public string targetTag;
+
+    // Damage amount — currently unused in logic (TakeDamage is a fixed -1 HP call)
+    // Reserved for future use if damage values become variable
     public int damageAmount = 1;
+
+    // If true, this hitbox can also destroy flying projectiles (BottleItem, SeaHagProjectile)
+    // Set to true for Popeye (can punch bottles away), false for Bluto
     public bool canDestroyProjectiles = true;
 
+    // The BoxCollider on this same GameObject — cached in Awake for repeated use
     private BoxCollider hitCollider;
+
+    // ─── UNITY LIFECYCLE ─────────────────────────────────────────────────────
 
     private void Awake()
     {
         hitCollider = GetComponent<BoxCollider>();
-        hitCollider.isTrigger = true;
-        hitCollider.enabled = false;
+        hitCollider.isTrigger = true;  // Trigger mode: detects overlaps without physical collision response
+        hitCollider.enabled = false;   // Starts disabled — only active during the punch window
     }
 
-    public void EnableHitbox() => hitCollider.enabled = true;
+    // ─── ANIMATION EVENT TARGETS ─────────────────────────────────────────────
+    // These methods are called by Animation Events set on the Punch animation clips.
+    // The method names must match exactly what is typed in the Animation Event inspector.
+
+    // Called at frame 5 of Punch animation — opens the damage window
+    public void EnableHitbox()  => hitCollider.enabled = true;
+
+    // Called at frame 10 of Punch animation — closes the damage window
     public void DisableHitbox() => hitCollider.enabled = false;
+
+    // ─── COLLISION DETECTION ─────────────────────────────────────────────────
 
     private void OnTriggerEnter(Collider other)
     {
+        // ── CASE 1: Hit the intended target (enemy player) ───────────────────
         if (other.CompareTag(targetTag))
         {
-            if (targetTag == "Player1") GameManager.Instance.TakeDamage();
-            else if (targetTag == "Player2" && transform.parent.GetComponent<PopeyeController>()) 
+            // Bluto's hitbox hit Popeye (targetTag = "Player1") → reduce Popeye's HP
+            if (targetTag == "Player1")
             {
-                other.GetComponent<BlutoController>().ApplySpinachStun();
+                GameManager.Instance.TakeDamage();
+            }
+            // Popeye's hitbox hit Bluto (targetTag = "Player2") while spinach is active → apply long stun
+            // The spinach check: only applies the powerful stun if this hitbox belongs to PopeyeController
+            else if (targetTag == "Player2" && transform.parent.GetComponent<PopeyeController>())
+            {
+                other.GetComponent<BlutoController>().ApplySpinachStun(); // 10-second stun from spinach buff
             }
         }
+        // ── CASE 2: Hit a bottle projectile or floor pickup → smash it ───────
         else if (canDestroyProjectiles && other.GetComponent<BottleItem>())
         {
             other.GetComponent<BottleItem>().Smash();
         }
+        // ── CASE 3: Hit a Sea Hag magic projectile → destroy it ──────────────
         else if (canDestroyProjectiles && other.GetComponent<SeaHagProjectile>())
         {
             other.GetComponent<SeaHagProjectile>().Smash();
         }
+        // ── CASE 4: Bluto's hitbox punches a spinach can → deny the pickup ───
+        // Bluto punching spinach destroys it without triggering the OnSpinachEaten event
         else if (other.GetComponent<SpinachItem>() && transform.parent.GetComponent<BlutoController>())
         {
             other.GetComponent<SpinachItem>().DestroyByBluto();
         }
+        // ── CASE 5: Popeye punches a ladder → disable it for 3 seconds ───────
+        // This is a defensive mechanic to block Bluto from climbing
         else if (other.GetComponent<LadderTrigger>() && transform.parent.GetComponent<PopeyeController>())
         {
             other.GetComponent<LadderTrigger>().DisableLadder();

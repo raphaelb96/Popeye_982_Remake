@@ -1167,11 +1167,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8382973634227299906, guid: 6878a545a2317494e88d3d9bb62ba2b0, type: 3}
   m_PrefabInstance: {fileID: 393277355}
   m_PrefabAsset: {fileID: 0}
---- !u!20 &408469847 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 8944336655422409496, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
-  m_PrefabInstance: {fileID: 1221041499}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &423358683
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2158,7 +2153,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1507636620937791777, guid: 7097ba7ba649e1f41bba232312bdcbd8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.65
+      value: -0.99
       objectReference: {fileID: 0}
     - target: {fileID: 1507636620937791777, guid: 7097ba7ba649e1f41bba232312bdcbd8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4561,6 +4556,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87e41253f90cfaf46a914bd95b35151e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeathZone
+  popeyeRespawn: {fileID: 0}
+  blutoRespawn: {fileID: 0}
 --- !u!65 &1476964612
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4580,8 +4577,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 59.91558, y: 5, z: 20}
-  m_Center: {x: 4.9577904, y: 0, z: 0}
+  m_Size: {x: 59.91558, y: 5.3738837, z: 20}
+  m_Center: {x: 4.9577904, y: 0.18694186, z: 0}
 --- !u!4 &1476964613
 Transform:
   m_ObjectHideFlags: 0
@@ -5033,7 +5030,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17d8163fb61207f4e9a16e7e42616874, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VFXManager
-  mainCamera: {fileID: 408469847}
+  shakeDuration: 0.2
+  shakeMagnitude: 0.15
+  floatingTextPrefab: {fileID: 0}
 --- !u!1 &1598171377
 GameObject:
   m_ObjectHideFlags: 0
