@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
     public int popeyeHP = 3;
 
     // The win threshold — Popeye must collect exactly this many hearts to win
-    private const int MAX_HEARTS = 2;
+    private const int MAX_HEARTS = 24;
 
     // ─── STATIC EVENTS ───────────────────────────────────────────────────────
     // These events are the backbone of the event-driven architecture.
