@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
     // subscribe to this event to know when they're allowed to move
     private IEnumerator StartRoundRoutine()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(1f);
         OnGameStart?.Invoke(); // The ?. (null-conditional) prevents crash if nobody is subscribed
     }
 

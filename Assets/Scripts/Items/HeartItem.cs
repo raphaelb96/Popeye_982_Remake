@@ -19,6 +19,9 @@ public class HeartItem : MonoBehaviour
     // Stores the X position at spawn time — the flutter oscillates around this fixed point
     private float startX;
 
+    // Prevents double-collection if OnTriggerEnter fires multiple times in a single frame
+    private bool isCollected = false;
+
     // Static event fired when Popeye successfully collects this heart
     // Subscribers: GameManager.AddHeart(), AudioManager (plays ding), UIManager (updates counter)
     public static event Action OnHeartCollected;
@@ -49,9 +52,13 @@ public class HeartItem : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // If it was already collected this frame, ignore further collisions
+        if (isCollected) return;
+
         // Only Popeye (Player1) can collect hearts — Bluto cannot
         if (other.CompareTag("Player1"))
         {
+            isCollected = true;              // Lock to prevent duplicate collection
             GameManager.Instance.AddHeart(); // Increment heart counter; triggers win if count reaches 24
             OnHeartCollected?.Invoke();      // Notify AudioManager, UIManager, etc.
             Destroy(gameObject);             // Remove the heart from the scene after collection
