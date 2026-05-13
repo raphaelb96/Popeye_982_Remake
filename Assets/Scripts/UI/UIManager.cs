@@ -51,7 +51,7 @@ public class UIManager : MonoBehaviour
     {
         // Refresh the HUD whenever any of these game events fire
         HeartItem.OnHeartCollected        += UpdateHUD; // Popeye collected a heart
-        BlutoController.OnBottleThrow += UpdateHUD; // Bluto threw a bottle (count decreased)
+        BlutoController.OnThrowBottle += UpdateHUD; // Bluto threw a bottle (count decreased)
         BlutoController.OnBottleCountChanged += UpdateHUD;
         GameManager.OnDamageTaken         += UpdateHUD; // Popeye took damage (HP changed)
         GameManager.OnGameStart += UpdateHUD; // Round started — show initial values
@@ -64,7 +64,7 @@ public class UIManager : MonoBehaviour
     {
         // Mirror unsubscriptions — prevents ghost callbacks if this object is disabled
         HeartItem.OnHeartCollected        -= UpdateHUD;
-        BlutoController.OnBottleThrow     -= UpdateHUD;
+        BlutoController.OnThrowBottle -= UpdateHUD;
         BlutoController.OnBottleCountChanged -= UpdateHUD;
         GameManager.OnDamageTaken         -= UpdateHUD;
         GameManager.OnGameStart           -= UpdateHUD;
