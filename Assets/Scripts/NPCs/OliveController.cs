@@ -29,6 +29,10 @@ public class OliveController : MonoBehaviour
     public Transform[] spinachSpawnPoints;
     public Transform[] bottleSpawnPoints;
 
+    //─── ANIMATORS ────────────────────────────────────────────────────────
+
+    public Animator oliveAnimator;
+
     // ─── STATE ───────────────────────────────────────────────────────────────
     private int heartsThrown = 0;
     private float heartTimer = 0f;
@@ -138,6 +142,8 @@ public class OliveController : MonoBehaviour
 
     private void SpawnHeart()
     {
+        oliveAnimator.SetTrigger("Heart");
+
         Instantiate(heartPrefab, transform.position, Quaternion.identity);
         OnThrowHeart?.Invoke(); // Trigger throwing sound
         heartsThrown++;
