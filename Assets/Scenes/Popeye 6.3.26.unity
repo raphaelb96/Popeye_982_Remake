@@ -774,6 +774,8 @@ MonoBehaviour:
   maxWalkTime: 5
   minIdleTime: 1.5
   maxIdleTime: 3
+  minHeartTime: 1
+  maxHeartTime: 3.5
   heartPrefab: {fileID: 6026282377454712960, guid: 6c24674e47a389143acfb6851e818cea, type: 3}
   bottlePrefab: {fileID: 5306823589326231609, guid: 815744fb38b143d4b8c57ae1c7fb6c60, type: 3}
   spinachPrefab: {fileID: 6988636804634986588, guid: 953507828a9efad459be9c543b1001af, type: 3}
@@ -12196,6 +12198,9 @@ MonoBehaviour:
   meleeHitbox: {fileID: 1390683617}
   isGrounded: 0
   isClimbing: 0
+  normalStunDuration: 1
+  spinachStunDuration: 5
+  punchCooldown: 1
 --- !u!95 &6982812147933622147
 Animator:
   serializedVersion: 7
@@ -12287,6 +12292,7 @@ MonoBehaviour:
   isClimbing: 0
   isStunned: 0
   isInvincible: 0
+  bottleStunDuration: 2
 --- !u!4 &6983258930626336602
 Transform:
   m_ObjectHideFlags: 0

@@ -27,8 +27,14 @@ public class BlutoController : MonoBehaviour
     public bool isGrounded;
     public bool isClimbing;
     private bool isStunned;
+    private float punchTimer = 0f;
     private bool canMove = false;
     private Vector3 originalScale;
+
+    [Header("Stun Durations")]
+    public float normalStunDuration = 1f;
+    public float spinachStunDuration = 5f;
+    public float punchCooldown = 1f;
 
     // ─── AUDIO EVENTS ────────────────────────────────────────────────────────
     public static event Action OnHeavyPunch;
@@ -75,6 +81,7 @@ public class BlutoController : MonoBehaviour
         HandleMovement();
         HandleJumpAndDrop();
         HandleAction();
+        if (punchTimer > 0f) punchTimer -= Time.deltaTime;
 
         // Audio footstep handling
         if (isGrounded && rb.linearVelocity.magnitude > 0.1f && !isClimbing)
@@ -139,10 +146,12 @@ public class BlutoController : MonoBehaviour
 
     private void HandleAction()
     {
-        if (InputManager.Instance.BlutoPunchDown)
+        if (InputManager.Instance.BlutoPunchDown && punchTimer <= 0f)
         {
             animator.SetTrigger("Punch");
             OnHeavyPunch?.Invoke();
+            // Start cooldown — Bluto cannot punch again until timer reaches 0
+            punchTimer = punchCooldown;
         }
         else if (InputManager.Instance.BlutoThrowDown && currentBottles > 0)
         {
@@ -199,12 +208,6 @@ public class BlutoController : MonoBehaviour
             OnBottleCountChanged?.Invoke();
             OnBottleCollected?.Invoke(); // Trigger collected sound
         }
-    }
-
-    public void ApplySpinachStun()
-    {
-        ApplyStun(10f);
-        OnBlutoStunned?.Invoke();
     }
 
     public void ApplyStun(float duration)
