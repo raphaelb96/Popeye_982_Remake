@@ -62,11 +62,68 @@ Légende : ⏳ à faire | ✅ corrigé et testé | ❌ abandonné
 - Bouteilles = 2s stun ← bug #4
 - Couleur rougeâtre sur Popeye en spinach mode
 
-**Art / Animations** (T = Rotem) : Idle, Climb, Jump/Fall pour Popeye+Bluto, HeartFlutter, HeavyPunch, Stunned, ThrowBottle, Hurt (Bluto)
-
-**GFX** : Fonts, layers de profondeur, skybox port, éclairage par layer, portraits victory screens, instructions UI, VFX POW/BAM améliorés, plateformes plus épaisses, bouteilles/barils plus gros
-
 **Wiring Inspector** (à assigner dans Unity) : AudioManager clips, VFXManager prefabs+caméra, PauseManager panel, SeaHagController gameobject
+
+---
+
+## Assets Art — État actuel
+
+### ✅ Sprites/Animations existants
+| Asset | Fichier | Notes |
+|-------|---------|-------|
+| Popeye walk | `PLACEHOLDER/NEW POPEYE WALK/` | 2 frames — sprite à remplacer |
+| Popeye punch normal (hit) | `Animations/Popeye Normal Punch Hit/` | 4 frames |
+| Popeye punch normal (miss) | `Animations/Popeye Normal Punch Miss/` | 3 frames |
+| Popeye spinach punch | `Animations/Popeye Spinach Punch/` | 4 frames |
+| Popeye spinach walk | `Animations/Popeye Spinach Walk/` | 2 frames |
+| Popeye jump | `Sprites/Popeye Normal Jump Frame.PNG` | 1 frame |
+| Popeye spinach jump | `Sprites/Popeye Spinach Jump Frame.PNG` | 1 frame |
+| Popeye hurt | `Sprites/Popeye hurt frame.PNG` | 1 frame — à animer |
+| Popeye eat spinach | `Sprites/Popeye Eat Spinach Frame.PNG` | 1 frame — à animer |
+| Bluto walk | `PLACEHOLDER/Bluto Normal Walk/` | 2 frames — sprite à remplacer |
+| Bluto scared walk | `PLACEHOLDER/Bluto Scared Walk/` | 2 frames |
+| Bluto punch | `Animations/Bluto Punch/` | 6 frames |
+| Bluto jump | `Sprites/Bluto Jump Frame.PNG` | 1 frame |
+| Bottle idle | `Animations/Bottle Idle/` | 9 frames |
+| Flying bottle | `Animations/Flying Bottle/` | 5 frames — sprite à changer |
+| Heart flutter | `Animations/Heart Flutter/` | 2 frames — sprite à changer |
+| Olive walk | `PLACEHOLDER/Olive Normal Walk/` | 2 frames |
+| Olive throw heart | `PLACEHOLDER/Olive Throw Heart Frame.PNG` | 1 frame |
+| Background | `Sprites/Background.PNG` | À remplacer |
+| Victory screens | `Sprites/Victory Screens/` | Popeye + Bluto ✅ |
+
+### 🔄 PNG prêts — à convertir en Sprite puis assigner dans Unity (Raphael)
+| Asset | Notes |
+|-------|-------|
+| Flying bottle sprite | Remplacer animation Flying Bottle |
+| Heart sprite | Remplacer animation Heart Flutter |
+| Spinach can sprite | À assigner sur le prefab Spinach |
+| POW / BAM sprites | À assigner dans VFXManager prefab |
+| Popeye hurt | Peut clignoter — voir script |
+| Popeye eat spinach | À assigner dans animation |
+| Bluto HeavyPunch | À assigner dans animation |
+| Bluto ThrowBottle | À assigner dans animation |
+| Background seaport | À remplacer dans la scène |
+
+### ✅ Déjà intégrés dans Unity
+| Asset | Notes |
+|-------|-------|
+| Popeye walk | Fait ce soir |
+| Popeye Idle | Fait |
+| Bluto walk | Fait |
+| Bluto Idle | Fait |
+
+### ❓ À confirmer avec Rotem
+| Asset | Notes |
+|-------|-------|
+| Popeye Climb 1/2 | Existe ? |
+| Bluto Climb 1/2 | Existe ? |
+| Bluto Stunned 1/2 | Existe ? |
+| Bluto Hurt | Existe ? |
+| Sea Hag sprite + animations | Existe ? |
+
+### Audio/VFX — Michael
+Tout ce qui concerne Audio et VFX est délégué à Michael.
 
 ---
 
