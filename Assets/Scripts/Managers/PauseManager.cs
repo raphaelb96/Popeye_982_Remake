@@ -21,8 +21,11 @@ public class PauseManager : MonoBehaviour
 
     // Subscribe to OnGameStart using a lambda — sets canPause to true when the round begins
     // NOTE: lambdas cannot be unsubscribed with -= (known bug, see class comment above)
-    private void OnEnable()  => GameManager.OnGameStart += () => canPause = true;
-    private void OnDisable() => GameManager.OnGameStart -= () => canPause = false; // Does not work as intended
+    private void OnEnable() => GameManager.OnGameStart += EnablePause;
+    private void OnDisable() => GameManager.OnGameStart -= EnablePause;
+
+    // Named method so OnDisable can properly unsubscribe (lambdas cannot be unsubscribed)
+    private void EnablePause() => canPause = true;
 
     // Hide the pause panel on scene load before anything starts
     private void Start() => pausePanel.SetActive(false);

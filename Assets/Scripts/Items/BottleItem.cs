@@ -64,8 +64,9 @@ public class BottleItem : MonoBehaviour
         // PROJECTILE MODE: the flying bottle hits Popeye (Player1) → stun only, no HP damage
         else if (isProjectile && other.CompareTag("Player1"))
         {
-            // 0.5s stun: Popeye freezes briefly but does NOT lose a life
-            other.GetComponent<PopeyeController>().ApplyStun(0.5f);
+            PopeyeController popeye = other.GetComponent<PopeyeController>();
+            // Stun duration set on Popeye's Inspector for easy tuning
+            popeye.ApplyStun(popeye.bottleStunDuration);
             OnBottleSmashed?.Invoke(); // Notify AudioManager → play smash SFX
             Destroy(gameObject);       // Remove the bottle after hitting Popeye
         }

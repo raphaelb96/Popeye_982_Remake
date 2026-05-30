@@ -20,6 +20,10 @@ public class OliveController : MonoBehaviour
     private bool isWalking = true;
     private float stateTimer = 0f;
 
+    [Header("Heart Spawn Timer")]
+    public float minHeartTime = 1.5f;
+    public float maxHeartTime = 2.5f;
+
     // ─── SPAWN PREFABS ───────────────────────────────────────────────────────
     public GameObject heartPrefab;
     public GameObject bottlePrefab;
@@ -36,6 +40,7 @@ public class OliveController : MonoBehaviour
     // ─── STATE ───────────────────────────────────────────────────────────────
     private int heartsThrown = 0;
     private float heartTimer = 0f;
+    private float nextHeartTime = 2f;
     private bool canAct = false;
     private Vector3 originalScale;
 
@@ -133,9 +138,11 @@ public class OliveController : MonoBehaviour
     {
         heartTimer += Time.deltaTime;
 
-        if (heartTimer >= 2f)
+        if (heartTimer >= nextHeartTime)
         {
             heartTimer = 0f;
+            // Pick a new random delay for the next heart
+            nextHeartTime = UnityEngine.Random.Range(minHeartTime, maxHeartTime);
             SpawnHeart();
         }
     }

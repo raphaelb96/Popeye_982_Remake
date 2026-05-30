@@ -25,6 +25,9 @@ public class PopeyeController : MonoBehaviour
     private bool canMove = false;
     private Vector3 originalScale;
 
+    [Header("Stun Durations")]
+    public float bottleStunDuration = 2f;
+
     // ─── AUDIO EVENTS ────────────────────────────────────────────────────────
     public static event Action OnPunch;
     public static event Action OnJump;
