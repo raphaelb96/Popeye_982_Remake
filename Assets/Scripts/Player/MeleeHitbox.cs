@@ -64,7 +64,14 @@ public class MeleeHitbox : MonoBehaviour
             // Bluto's hitbox hit Popeye (targetTag = "Player1") → reduce Popeye's HP
             if (targetTag == "Player1")
             {
-                GameManager.Instance.TakeDamage();
+                // Call TakeDamage() directly on Popeye — handles HP, knockback and stun together
+                PopeyeController popeye = other.GetComponent<PopeyeController>();
+                if (popeye != null)
+                {
+                    // Push Popeye away from Bluto's hitbox parent
+                    Vector3 knockbackDir = (other.transform.position - transform.parent.position).normalized;
+                    popeye.TakeDamage(damageAmount, knockbackDir * 8f);
+                }
             }
             // CASE 1b: Popeye's hitbox hit Bluto (targetTag = "Player2")
             // Only apply the spinach stun if Popeye is currently in spinach mode (isInvincible = true)
@@ -74,12 +81,18 @@ public class MeleeHitbox : MonoBehaviour
                 // Get the PopeyeController to check if the spinach buff is active
                 PopeyeController popeye = transform.parent.GetComponent<PopeyeController>();
 
-                if (popeye.isInvincible) // isInvincible is only true during the 10s spinach buff
+                BlutoController bluto = other.GetComponent<BlutoController>();
+
+                if (popeye.isInvincible)
                 {
-                    // Apply the long spinach stun (10 seconds) — defined in BlutoController.ApplySpinachStun()
-                    other.GetComponent<BlutoController>().ApplySpinachStun();
+                    // Spinach active — stun duration set in Inspector on Bluto
+                    bluto.ApplyStun(bluto.spinachStunDuration);
                 }
-                // else: spinach not active → punch is harmless, nothing happens
+                else
+                {
+                    // Normal punch — stun duration set in Inspector on Bluto
+                    bluto.ApplyStun(bluto.normalStunDuration);
+                }
             }
         }
         // ── CASE 2: Hit a bottle projectile or floor pickup → smash it ───────
@@ -93,10 +106,14 @@ public class MeleeHitbox : MonoBehaviour
             other.GetComponent<SeaHagProjectile>().Smash();
         }
         // ── CASE 4: Bluto's hitbox punches a spinach can → deny the pickup ───
-        // Bluto punching spinach destroys it without triggering the OnSpinachEaten event
         else if (other.GetComponent<SpinachItem>() && transform.parent.GetComponent<BlutoController>())
         {
             other.GetComponent<SpinachItem>().DestroyByBluto();
+        }
+        // ── CASE 4b: Bluto's hitbox punches a heart → destroy it before Popeye collects it ───
+        else if (other.GetComponent<HeartItem>() && transform.parent.GetComponent<BlutoController>())
+        {
+            Destroy(other.gameObject);
         }
         // ── CASE 5: Popeye punches a ladder → disable it for 3 seconds ───────
         // This is a defensive mechanic to block Bluto from climbing
