@@ -34,7 +34,6 @@ public class OliveController : MonoBehaviour
     public Transform[] bottleSpawnPoints;
 
     //─── ANIMATORS ────────────────────────────────────────────────────────
-
     public Animator oliveAnimator;
 
     // ─── STATE ───────────────────────────────────────────────────────────────
@@ -42,7 +41,6 @@ public class OliveController : MonoBehaviour
     private float heartTimer = 0f;
     private float nextHeartTime = 2f;
     private bool canAct = false;
-    private Vector3 originalScale;
 
     // ─── AUDIO EVENTS ────────────────────────────────────────────────────────
     public static event Action OnThrowHeart;
@@ -51,16 +49,29 @@ public class OliveController : MonoBehaviour
     private float walkTimer = 0f;
     private float walkInterval = 0.4f;
 
+    // ─── VISUAL CACHE ────────────────────────────────────────────────────────
+    private Transform visualTransform;
+    private Vector3 baseVisualScale;
+    private Quaternion rightRotation;
+    private Quaternion leftRotation;
+
     // ─── UNITY LIFECYCLE ─────────────────────────────────────────────────────
 
     private void Awake()
     {
-        originalScale = transform.localScale;
+        rightRotation = transform.rotation;
+        leftRotation = transform.rotation * Quaternion.Euler(0, 180, 0);
+
+        Billboard billboard = GetComponentInChildren<Billboard>();
+        if (billboard != null)
+        {
+            visualTransform = billboard.transform;
+            baseVisualScale = visualTransform.localScale;
+        }
     }
 
     private void OnEnable()
     {
-        // Replaced the lambda with a named method to allow proper unsubscription
         GameManager.OnGameStart += StartPatrol;
     }
 
@@ -82,13 +93,11 @@ public class OliveController : MonoBehaviour
 
         HandlePatrolState();
 
-        // Only move (and play footsteps) if she is currently in the walking state
         if (isWalking)
         {
             MoveOlive();
         }
 
-        // Spawning happens constantly, even if she stops to take a break
         HandleSpawning();
     }
 
@@ -97,10 +106,8 @@ public class OliveController : MonoBehaviour
         stateTimer -= Time.deltaTime;
         if (stateTimer <= 0f)
         {
-            // Toggle between walking and standing still
             isWalking = !isWalking;
 
-            // Pick a random duration for the new state
             if (isWalking)
                 stateTimer = UnityEngine.Random.Range(minWalkTime, maxWalkTime);
             else
@@ -112,9 +119,8 @@ public class OliveController : MonoBehaviour
 
     private void MoveOlive()
     {
-        transform.Translate(Vector3.right * direction * moveSpeed * Time.deltaTime);
+        transform.Translate(Vector3.right * direction * moveSpeed * Time.deltaTime, Space.World);
 
-        // Audio footstep logic (only runs when MoveOlive is called)
         walkTimer -= Time.deltaTime;
         if (walkTimer <= 0f)
         {
@@ -125,11 +131,22 @@ public class OliveController : MonoBehaviour
         if (transform.position.x > rightBound) direction = -1;
         else if (transform.position.x < leftBound) direction = 1;
 
-        transform.localScale = new Vector3(
-            Mathf.Abs(originalScale.x) * direction,
-            originalScale.y,
-            originalScale.z
-        );
+        if (direction < 0)
+        {
+            transform.rotation = leftRotation;
+            if (visualTransform != null)
+            {
+                visualTransform.localScale = new Vector3(-Mathf.Abs(baseVisualScale.x), baseVisualScale.y, baseVisualScale.z);
+            }
+        }
+        else
+        {
+            transform.rotation = rightRotation;
+            if (visualTransform != null)
+            {
+                visualTransform.localScale = new Vector3(Mathf.Abs(baseVisualScale.x), baseVisualScale.y, baseVisualScale.z);
+            }
+        }
     }
 
     // ─── SPAWNING ────────────────────────────────────────────────────────────
@@ -141,7 +158,6 @@ public class OliveController : MonoBehaviour
         if (heartTimer >= nextHeartTime)
         {
             heartTimer = 0f;
-            // Pick a new random delay for the next heart
             nextHeartTime = UnityEngine.Random.Range(minHeartTime, maxHeartTime);
             SpawnHeart();
         }
@@ -152,7 +168,7 @@ public class OliveController : MonoBehaviour
         oliveAnimator.SetTrigger("Heart");
 
         Instantiate(heartPrefab, transform.position, Quaternion.identity);
-        OnThrowHeart?.Invoke(); // Trigger throwing sound
+        OnThrowHeart?.Invoke();
         heartsThrown++;
 
         if (heartsThrown % 2 == 0) SpawnBottle();

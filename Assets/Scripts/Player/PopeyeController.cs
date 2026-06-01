@@ -23,7 +23,6 @@ public class PopeyeController : MonoBehaviour
     public bool isStunned;
     public bool isInvincible = false;
     private bool canMove = false;
-    private Vector3 originalScale;
 
     [Header("Stun Durations")]
     public float bottleStunDuration = 2f;
@@ -37,6 +36,12 @@ public class PopeyeController : MonoBehaviour
     private float walkTimer = 0f;
     private float walkInterval = 0.3f;
 
+    // ─── VISUAL & ROTATION CACHE ─────────────────────────────────────────────
+    private Transform visualTransform;
+    private Vector3 baseVisualScale;
+    private Quaternion rightRotation;
+    private Quaternion leftRotation;
+
     // ─── UNITY LIFECYCLE ─────────────────────────────────────────────────────
 
     private void Awake()
@@ -47,7 +52,17 @@ public class PopeyeController : MonoBehaviour
 
         rb.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
         rb.useGravity = true;
-        originalScale = transform.localScale;
+
+        rightRotation = transform.rotation;
+        leftRotation = transform.rotation * Quaternion.Euler(0, 180, 0);
+
+        // Find the specific child that holds the visuals and capture its scale
+        Billboard billboard = GetComponentInChildren<Billboard>();
+        if (billboard != null)
+        {
+            visualTransform = billboard.transform;
+            baseVisualScale = visualTransform.localScale;
+        }
 
         if (meleeHitbox != null) meleeHitbox.enabled = false;
     }
@@ -75,7 +90,6 @@ public class PopeyeController : MonoBehaviour
         HandleJumpAndDrop();
         HandleAction();
 
-        // Audio footstep handling (only walk on ground, moving, and not climbing)
         if (isGrounded && rb.linearVelocity.magnitude > 0.1f && !isClimbing)
         {
             walkTimer -= Time.deltaTime;
@@ -105,13 +119,23 @@ public class PopeyeController : MonoBehaviour
             rb.linearVelocity = new Vector3(moveX * moveSpeed, rb.linearVelocity.y, 0);
             animator.SetFloat("Speed", Mathf.Abs(moveX));
 
-            if (moveX != 0)
+            if (moveX < 0)
             {
-                transform.localScale = new Vector3(
-                    Mathf.Sign(moveX) * Mathf.Abs(originalScale.x),
-                    originalScale.y,
-                    originalScale.z
-                );
+                transform.rotation = leftRotation; // Swing the physics hitboxes left
+                if (visualTransform != null)
+                {
+                    // Scale the visual child negatively to mirror the shader/texture
+                    visualTransform.localScale = new Vector3(-Mathf.Abs(baseVisualScale.x), baseVisualScale.y, baseVisualScale.z);
+                }
+            }
+            else if (moveX > 0)
+            {
+                transform.rotation = rightRotation; // Swing the physics hitboxes right
+                if (visualTransform != null)
+                {
+                    // Restore the visual child scale to face right
+                    visualTransform.localScale = new Vector3(Mathf.Abs(baseVisualScale.x), baseVisualScale.y, baseVisualScale.z);
+                }
             }
         }
     }
@@ -122,7 +146,7 @@ public class PopeyeController : MonoBehaviour
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, 0);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            OnJump?.Invoke(); // Trigger jump sound
+            OnJump?.Invoke();
         }
 
         if (isGrounded && InputManager.Instance.PopeyeDropDown)
@@ -190,7 +214,7 @@ public class PopeyeController : MonoBehaviour
     {
         if (isStunned || isInvincible) return;
         isStunned = true;
-        OnHit?.Invoke(); // Trigger hit sound whenever stunned
+        OnHit?.Invoke();
         animator.SetBool("IsStunned", true);
         Invoke(nameof(RecoverFromStun), duration);
     }

@@ -29,8 +29,6 @@ public class MeleeHitbox : MonoBehaviour
     // The BoxCollider on this same GameObject — cached in Awake for repeated use
     private BoxCollider hitCollider;
 
-    public string hitText = "POW!";  // Set per-character in Inspector
-
     // ─── UNITY LIFECYCLE ─────────────────────────────────────────────────────
 
     private void Awake()
@@ -45,7 +43,7 @@ public class MeleeHitbox : MonoBehaviour
     // The method names must match exactly what is typed in the Animation Event inspector.
 
     // Called at frame 5 of Punch animation — opens the damage window
-    public void EnableHitbox()  => hitCollider.enabled = true;
+    public void EnableHitbox() => hitCollider.enabled = true;
 
     // Called at frame 10 of Punch animation — closes the damage window
     public void DisableHitbox() => hitCollider.enabled = false;
@@ -57,9 +55,9 @@ public class MeleeHitbox : MonoBehaviour
         // ── CASE 1: Hit the intended target (enemy player) ───────────────────
         if (other.CompareTag(targetTag))
         {
-            // Spawn floating text at the hit point
+            // Spawn random hit sprite at the hit point
             VFXManager vfx = FindFirstObjectByType<VFXManager>();
-            if (vfx != null) vfx.SpawnFloatingText(other.transform.position, hitText);
+            if (vfx != null) vfx.SpawnHitSprite(other.transform.position);
 
             // Bluto's hitbox hit Popeye (targetTag = "Player1") → reduce Popeye's HP
             if (targetTag == "Player1")
