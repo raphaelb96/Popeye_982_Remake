@@ -138,16 +138,16 @@ public class AudioManager : MonoBehaviour
 
     // ─── SFX WRAPPERS ────────────────────────────────────────────────────────
 
-    private void PlayHeartDing() => sfxSource.PlayOneShot(heartDing);
-    private void PlayBottleSmash() => sfxSource.PlayOneShot(bottleSmash);
-    private void PlaySpinachEatSFX() => sfxSource.PlayOneShot(spinachEatSFX);
-    private void PlayPopeyeJump() => sfxSource.PlayOneShot(popeyeJump);
-    private void PlayPopeyeHit() => sfxSource.PlayOneShot(popeyeHit);
-    private void PlayBlutoJump() => sfxSource.PlayOneShot(blutoJump);
-    private void PlayBlutoHit() => sfxSource.PlayOneShot(blutoHit);
-    private void PlayBlutoThrowBottle() => sfxSource.PlayOneShot(blutoThrowBottle);
-    private void PlayBlutoCollectBottle() => sfxSource.PlayOneShot(blutoCollectBottle);
-    private void PlayOliveThrow() => sfxSource.PlayOneShot(oliveThrow);
+    private void PlayHeartDing() => PlayWithRandomPitch(heartDing, 0.9f, 1.1f);
+    private void PlayBottleSmash() => PlayWithRandomPitch(bottleSmash, 0.9f, 1.1f);
+    private void PlaySpinachEatSFX() => PlayWithRandomPitch(spinachEatSFX, 0.9f, 1.1f);
+    private void PlayPopeyeJump() => PlayWithRandomPitch(popeyeJump, 0.9f, 1.1f);
+    private void PlayPopeyeHit() => PlayWithRandomPitch(popeyeHit, 0.9f, 1.1f);
+    private void PlayBlutoJump() => PlayWithRandomPitch(blutoJump, 0.9f, 1.1f);
+    private void PlayBlutoHit() => PlayWithRandomPitch(blutoHit, 0.9f, 1.1f);
+    private void PlayBlutoThrowBottle() => PlayWithRandomPitch(blutoThrowBottle, 0.9f, 1.1f);
+    private void PlayBlutoCollectBottle() => PlayWithRandomPitch(blutoCollectBottle, 0.9f, 1.1f);
+    private void PlayOliveThrow() => PlayWithRandomPitch(oliveThrow, 0.9f, 1.1f);
 
     private void PlayPunchThud() => PlayWithRandomPitch(punchThud, 0.9f, 1.1f);
     private void PlayBlutoPunch() => PlayWithRandomPitch(blutoPunch, 0.9f, 1.1f);
