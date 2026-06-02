@@ -29,7 +29,7 @@ public class BlutoController : MonoBehaviour
     private bool isStunned;
     private float punchTimer = 0f;
     private bool canMove = false;
-    private Vector3 originalScale;
+    private float facingDirection = 1f;
 
     [Header("Stun Durations")]
     public float normalStunDuration = 1f;
@@ -49,6 +49,12 @@ public class BlutoController : MonoBehaviour
     private float walkTimer = 0f;
     private float walkInterval = 0.35f;
 
+    // ─── VISUAL & ROTATION CACHE ─────────────────────────────────────────────
+    private Transform visualTransform;
+    private Vector3 baseVisualScale;
+    private Quaternion rightRotation;
+    private Quaternion leftRotation;
+
     // ─── UNITY LIFECYCLE ─────────────────────────────────────────────────────
 
     private void Awake()
@@ -59,7 +65,16 @@ public class BlutoController : MonoBehaviour
 
         rb.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
         rb.useGravity = true;
-        originalScale = transform.localScale;
+
+        rightRotation = transform.rotation;
+        leftRotation = transform.rotation * Quaternion.Euler(0, 180, 0);
+
+        Billboard billboard = GetComponentInChildren<Billboard>();
+        if (billboard != null)
+        {
+            visualTransform = billboard.transform;
+            baseVisualScale = visualTransform.localScale;
+        }
 
         if (meleeHitbox != null) meleeHitbox.enabled = false;
     }
@@ -83,7 +98,6 @@ public class BlutoController : MonoBehaviour
         HandleAction();
         if (punchTimer > 0f) punchTimer -= Time.deltaTime;
 
-        // Audio footstep handling
         if (isGrounded && rb.linearVelocity.magnitude > 0.1f && !isClimbing)
         {
             walkTimer -= Time.deltaTime;
@@ -113,13 +127,23 @@ public class BlutoController : MonoBehaviour
             rb.linearVelocity = new Vector3(moveX * moveSpeed, rb.linearVelocity.y, 0);
             animator.SetFloat("Speed", Mathf.Abs(moveX));
 
-            if (moveX != 0)
+            if (moveX < 0)
             {
-                transform.localScale = new Vector3(
-                    Mathf.Sign(moveX) * Mathf.Abs(originalScale.x),
-                    originalScale.y,
-                    originalScale.z
-                );
+                transform.rotation = leftRotation;
+                facingDirection = -1f;
+                if (visualTransform != null)
+                {
+                    visualTransform.localScale = new Vector3(-Mathf.Abs(baseVisualScale.x), baseVisualScale.y, baseVisualScale.z);
+                }
+            }
+            else if (moveX > 0)
+            {
+                transform.rotation = rightRotation;
+                facingDirection = 1f;
+                if (visualTransform != null)
+                {
+                    visualTransform.localScale = new Vector3(Mathf.Abs(baseVisualScale.x), baseVisualScale.y, baseVisualScale.z);
+                }
             }
         }
     }
@@ -130,7 +154,7 @@ public class BlutoController : MonoBehaviour
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, 0);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            OnJump?.Invoke(); // Trigger jump sound
+            OnJump?.Invoke();
         }
 
         if (isGrounded && InputManager.Instance.BlutoDropDown)
@@ -150,7 +174,6 @@ public class BlutoController : MonoBehaviour
         {
             animator.SetTrigger("Punch");
             OnHeavyPunch?.Invoke();
-            // Start cooldown — Bluto cannot punch again until timer reaches 0
             punchTimer = punchCooldown;
         }
         else if (InputManager.Instance.BlutoThrowDown && currentBottles > 0)
@@ -165,11 +188,10 @@ public class BlutoController : MonoBehaviour
 
         currentBottles--;
         OnBottleCountChanged?.Invoke();
-        OnThrowBottle?.Invoke();          // Trigger throw sound (event name updated)
+        OnThrowBottle?.Invoke();
 
         GameObject bottle = Instantiate(bottlePrefab, throwPoint.position, Quaternion.identity);
-        float direction = Mathf.Sign(transform.localScale.x);
-        bottle.GetComponent<BottleItem>().InitializeProjectile(direction);
+        bottle.GetComponent<BottleItem>().InitializeProjectile(facingDirection);
     }
 
     public void EnableHitbox()
@@ -206,7 +228,7 @@ public class BlutoController : MonoBehaviour
         {
             currentBottles++;
             OnBottleCountChanged?.Invoke();
-            OnBottleCollected?.Invoke(); // Trigger collected sound
+            OnBottleCollected?.Invoke();
         }
     }
 
@@ -214,7 +236,8 @@ public class BlutoController : MonoBehaviour
     {
         if (isStunned) return;
         isStunned = true;
-        OnHit?.Invoke(); // Trigger hit sound whenever stunned
+        OnHit?.Invoke();
+        OnBlutoStunned?.Invoke();
         animator.SetBool("IsStunned", true);
         rb.linearVelocity = Vector3.zero;
         Invoke(nameof(RecoverFromStun), duration);
