@@ -9,6 +9,7 @@ public class BlutoController : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 4f;
     public float jumpForce = 8f;
+    public float fallMultiplier = 2.5f;
 
     [Header("Inventory")]
     public int maxBottles = 5;
@@ -28,13 +29,15 @@ public class BlutoController : MonoBehaviour
     public bool isClimbing;
     private bool isStunned;
     private float punchTimer = 0f;
+    private float throwTimer = 0f;
     private bool canMove = false;
     private float facingDirection = 1f;
 
-    [Header("Stun Durations")]
+    [Header("Cooldowns & Durations")]
     public float normalStunDuration = 1f;
     public float spinachStunDuration = 5f;
     public float punchCooldown = 1f;
+    public float throwCooldown = 0.5f;
 
     // ─── AUDIO EVENTS ────────────────────────────────────────────────────────
     public static event Action OnHeavyPunch;
@@ -48,6 +51,9 @@ public class BlutoController : MonoBehaviour
 
     private float walkTimer = 0f;
     private float walkInterval = 0.35f;
+
+    // Timer to prevent instant ground-detection immediately after jumping
+    private float groundCheckCooldown = 0f;
 
     // ─── VISUAL & ROTATION CACHE ─────────────────────────────────────────────
     private Transform visualTransform;
@@ -92,11 +98,21 @@ public class BlutoController : MonoBehaviour
     {
         if (isStunned || !canMove) return;
 
-        CheckGrounded();
+        if (groundCheckCooldown > 0f)
+        {
+            groundCheckCooldown -= Time.deltaTime;
+        }
+        else
+        {
+            CheckGrounded();
+        }
+
         HandleMovement();
         HandleJumpAndDrop();
         HandleAction();
+
         if (punchTimer > 0f) punchTimer -= Time.deltaTime;
+        if (throwTimer > 0f) throwTimer -= Time.deltaTime;
 
         if (isGrounded && rb.linearVelocity.magnitude > 0.1f && !isClimbing)
         {
@@ -110,6 +126,12 @@ public class BlutoController : MonoBehaviour
         else
         {
             walkTimer = 0f;
+        }
+
+        // Custom gravity multiplier for falling
+        if (rb.linearVelocity.y < 0 && !isClimbing && !isGrounded)
+        {
+            rb.linearVelocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
         }
     }
 
@@ -154,6 +176,12 @@ public class BlutoController : MonoBehaviour
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, 0);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+
+            isGrounded = false;
+            animator.SetBool("IsGrounded", false);
+            groundCheckCooldown = 0.1f;
+
+            animator.SetTrigger("Jump");
             OnJump?.Invoke();
         }
 
@@ -176,9 +204,10 @@ public class BlutoController : MonoBehaviour
             OnHeavyPunch?.Invoke();
             punchTimer = punchCooldown;
         }
-        else if (InputManager.Instance.BlutoThrowDown && currentBottles > 0)
+        else if (InputManager.Instance.BlutoThrowDown && currentBottles > 0 && throwTimer <= 0f)
         {
             animator.SetTrigger("Throw");
+            throwTimer = throwCooldown;
         }
     }
 
@@ -238,7 +267,10 @@ public class BlutoController : MonoBehaviour
         isStunned = true;
         OnHit?.Invoke();
         OnBlutoStunned?.Invoke();
+
+        animator.SetTrigger("Hit");
         animator.SetBool("IsStunned", true);
+
         rb.linearVelocity = Vector3.zero;
         Invoke(nameof(RecoverFromStun), duration);
     }

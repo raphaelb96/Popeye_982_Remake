@@ -36,6 +36,9 @@ public class PopeyeController : MonoBehaviour
     private float walkTimer = 0f;
     private float walkInterval = 0.3f;
 
+    // Timer to prevent instant ground-detection immediately after jumping
+    private float groundCheckCooldown = 0f;
+
     // ─── VISUAL & ROTATION CACHE ─────────────────────────────────────────────
     private Transform visualTransform;
     private Vector3 baseVisualScale;
@@ -56,7 +59,6 @@ public class PopeyeController : MonoBehaviour
         rightRotation = transform.rotation;
         leftRotation = transform.rotation * Quaternion.Euler(0, 180, 0);
 
-        // Find the specific child that holds the visuals and capture its scale
         Billboard billboard = GetComponentInChildren<Billboard>();
         if (billboard != null)
         {
@@ -85,7 +87,16 @@ public class PopeyeController : MonoBehaviour
     {
         if (isStunned || !canMove) return;
 
-        CheckGrounded();
+        // Manage ground detection delay after jumping
+        if (groundCheckCooldown > 0f)
+        {
+            groundCheckCooldown -= Time.deltaTime;
+        }
+        else
+        {
+            CheckGrounded();
+        }
+
         HandleMovement();
         HandleJumpAndDrop();
         HandleAction();
@@ -121,19 +132,17 @@ public class PopeyeController : MonoBehaviour
 
             if (moveX < 0)
             {
-                transform.rotation = leftRotation; // Swing the physics hitboxes left
+                transform.rotation = leftRotation;
                 if (visualTransform != null)
                 {
-                    // Scale the visual child negatively to mirror the shader/texture
                     visualTransform.localScale = new Vector3(-Mathf.Abs(baseVisualScale.x), baseVisualScale.y, baseVisualScale.z);
                 }
             }
             else if (moveX > 0)
             {
-                transform.rotation = rightRotation; // Swing the physics hitboxes right
+                transform.rotation = rightRotation;
                 if (visualTransform != null)
                 {
-                    // Restore the visual child scale to face right
                     visualTransform.localScale = new Vector3(Mathf.Abs(baseVisualScale.x), baseVisualScale.y, baseVisualScale.z);
                 }
             }
@@ -146,6 +155,13 @@ public class PopeyeController : MonoBehaviour
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, 0);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+
+            // Suspend physics checks to let the collider clear the floor
+            isGrounded = false;
+            animator.SetBool("IsGrounded", false);
+            groundCheckCooldown = 0.1f;
+
+            animator.SetTrigger("Jump");
             OnJump?.Invoke();
         }
 
@@ -179,7 +195,6 @@ public class PopeyeController : MonoBehaviour
         rb.AddForce(knockbackVector, ForceMode.Impulse);
 
         ApplyStun(0.5f);
-        animator.SetTrigger("Hit");
     }
 
     public void EnableHitbox()
@@ -215,6 +230,7 @@ public class PopeyeController : MonoBehaviour
         if (isStunned || isInvincible) return;
         isStunned = true;
         OnHit?.Invoke();
+        animator.SetTrigger("Hit");
         animator.SetBool("IsStunned", true);
         Invoke(nameof(RecoverFromStun), duration);
     }
@@ -229,8 +245,23 @@ public class PopeyeController : MonoBehaviour
     {
         if (isInvincible) return;
         isInvincible = true;
+
+        // Halt momentum and block input for the eating animation
+        rb.linearVelocity = Vector3.zero;
+        canMove = false;
+        animator.SetTrigger("EatSpinach");
+
+        // Hold the freeze for 1 second, then apply the buff
+        Invoke(nameof(FinishEatingSpinach), 1f);
+    }
+
+    private void FinishEatingSpinach()
+    {
+        canMove = true;
         moveSpeed *= 2f;
-        Invoke(nameof(DeactivateSpinachMode), 10f);
+
+        // 9 seconds remaining on the active buff
+        Invoke(nameof(DeactivateSpinachMode), 9f);
     }
 
     private void DeactivateSpinachMode()
