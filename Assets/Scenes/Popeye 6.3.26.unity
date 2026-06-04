@@ -2945,7 +2945,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1507636620937791777, guid: 7097ba7ba649e1f41bba232312bdcbd8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.99
+      value: -0.68
       objectReference: {fileID: 0}
     - target: {fileID: 1507636620937791777, guid: 7097ba7ba649e1f41bba232312bdcbd8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4760,7 +4760,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9df4c261c8a72a141aaf59b466e5c73d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PopeyeController
-  moveSpeed: 5
+  moveSpeed: 6
   jumpForce: 7
   meleeHitbox: {fileID: 1960816601}
   isGrounded: 0
@@ -6147,6 +6147,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MeleeHitbox
   targetTag: Player1
   damageAmount: 1
+  knockbackForce: 16
   canDestroyProjectiles: 1
 --- !u!4 &1390683619
 Transform:
@@ -8463,11 +8464,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9159651723393187064, guid: 6878a545a2317494e88d3d9bb62ba2b0, type: 3}
       propertyPath: m_Layer
-      value: 8
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 9159651723393187064, guid: 6878a545a2317494e88d3d9bb62ba2b0, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Untagged
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: -2725975847412340185, guid: 6878a545a2317494e88d3d9bb62ba2b0, type: 3}
@@ -8627,6 +8628,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MeleeHitbox
   targetTag: Player2
   damageAmount: 1
+  knockbackForce: 16
   canDestroyProjectiles: 1
 --- !u!4 &1960816600
 Transform:
@@ -9712,8 +9714,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77a88f52a9d86a74889348144ad98e76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlutoController
-  moveSpeed: 4
+  moveSpeed: 6
   jumpForce: 38
+  fallMultiplier: 5
   maxBottles: 5
   currentBottles: 5
   throwPoint: {fileID: 46851569}
@@ -9724,6 +9727,7 @@ MonoBehaviour:
   normalStunDuration: 1.5
   spinachStunDuration: 5
   punchCooldown: 1
+  throwCooldown: 0.5
 --- !u!212 &6982812146802577796
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -9943,6 +9947,10 @@ PrefabInstance:
       value: Environment
       objectReference: {fileID: 0}
     - target: {fileID: 8345070700331616358, guid: 09aade0ecefd01e4b8f7661acf64f5c2, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8345070700331616358, guid: 09aade0ecefd01e4b8f7661acf64f5c2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 5bb90db6649081048a1effe14adfd547, type: 2}
@@ -9960,7 +9968,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8345070700331616360, guid: 09aade0ecefd01e4b8f7661acf64f5c2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.7
+      value: -0.08
       objectReference: {fileID: 0}
     - target: {fileID: 8680289381081499115, guid: 09aade0ecefd01e4b8f7661acf64f5c2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
