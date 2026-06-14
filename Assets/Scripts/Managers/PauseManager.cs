@@ -41,6 +41,20 @@ public class PauseManager : MonoBehaviour
             if (isPaused) ResumeGame(); // Second press = resume
             else          PauseGame();  // First press = pause
         }
+
+        // While paused: R restarts the round, Q quits the game
+        if (isPaused)
+        {
+            if (InputManager.Instance.RestartDown) RestartGame();
+            else if (InputManager.Instance.QuitDown) QuitGame();
+        }
+    }
+
+    // Reload the current scene to restart the round (R in the pause menu)
+    public void RestartGame()
+    {
+        Time.timeScale = 1; // Unfreeze before reloading
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     // ─── PUBLIC METHODS (also callable from UI buttons in the pause panel) ───
