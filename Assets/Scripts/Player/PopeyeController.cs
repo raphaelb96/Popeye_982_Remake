@@ -2,6 +2,7 @@
 // Controls all of Popeye's gameplay behaviour.
 using UnityEngine;
 using System;
+using System.Collections;
 
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider), typeof(Animator))]
 public class PopeyeController : MonoBehaviour
@@ -12,6 +13,7 @@ public class PopeyeController : MonoBehaviour
 
     [Header("Combat Settings")]
     public Collider meleeHitbox;
+    public float punchCooldown = 0.5f;   // FIX: minimum delay between punches
 
     private Rigidbody rb;
     private CapsuleCollider col;
@@ -23,6 +25,7 @@ public class PopeyeController : MonoBehaviour
     public bool isStunned;
     public bool isInvincible = false;
     private bool canMove = false;
+    private float punchTimer = 0f;
 
     [Header("Stun Durations")]
     public float bottleStunDuration = 2f;
@@ -100,6 +103,7 @@ public class PopeyeController : MonoBehaviour
         HandleMovement();
         HandleJumpAndDrop();
         HandleAction();
+        if (punchTimer > 0f) punchTimer -= Time.deltaTime;
 
         if (isGrounded && rb.linearVelocity.magnitude > 0.1f && !isClimbing)
         {
@@ -178,10 +182,11 @@ public class PopeyeController : MonoBehaviour
 
     private void HandleAction()
     {
-        if (InputManager.Instance.PopeyePunchDown)
+        if (InputManager.Instance.PopeyePunchDown && punchTimer <= 0f)
         {
             animator.SetTrigger("Punch");
             OnPunch?.Invoke();
+            punchTimer = punchCooldown;
         }
     }
 
@@ -232,11 +237,14 @@ public class PopeyeController : MonoBehaviour
         OnHit?.Invoke();
         animator.SetTrigger("Hit");
         animator.SetBool("IsStunned", true);
-        Invoke(nameof(RecoverFromStun), duration);
+        StartCoroutine(StunRoutine(duration));
     }
 
-    private void RecoverFromStun()
+    private IEnumerator StunRoutine(float duration)
     {
+        yield return new WaitForSeconds(duration);
+        // Keep the stun animation until Popeye is back on the ground
+        while (!isGrounded) { CheckGrounded(); yield return null; }
         isStunned = false;
         animator.SetBool("IsStunned", false);
     }

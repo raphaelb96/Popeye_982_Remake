@@ -25,6 +25,8 @@ public class InputManager : MonoBehaviour
     // System actions
     private InputAction pause;     // Pause game (Escape or P)
     private InputAction uiConfirm; // Confirm UI action (Space or Enter)
+    private InputAction restart;   // Restart round from pause menu (R)
+    private InputAction quit;      // Quit game from pause menu (Q)
 
     private void Awake()
     {
@@ -82,6 +84,10 @@ public class InputManager : MonoBehaviour
         uiConfirm = new InputAction("UIConfirm", InputActionType.Button, "<Keyboard>/space");
         uiConfirm.AddBinding("<Keyboard>/enter");
 
+        // Pause menu shortcuts: R = restart round, Q = quit game
+        restart = new InputAction("Restart", InputActionType.Button, "<Keyboard>/r");
+        quit = new InputAction("Quit", InputActionType.Button, "<Keyboard>/q");
+
         // Enable all actions so they start listening for input
         EnableAll();
     }
@@ -91,7 +97,7 @@ public class InputManager : MonoBehaviour
     {
         pMove.Enable(); pJump.Enable(); pDrop.Enable(); pPunch.Enable();
         bMove.Enable(); bJump.Enable(); bDrop.Enable(); bPunch.Enable(); bThrow.Enable();
-        pause.Enable(); uiConfirm.Enable();
+        pause.Enable(); uiConfirm.Enable(); restart.Enable(); quit.Enable();
     }
 
     // Disable all input actions when this object is destroyed — prevents memory leaks
@@ -99,7 +105,7 @@ public class InputManager : MonoBehaviour
     {
         pMove.Disable(); pJump.Disable(); pDrop.Disable(); pPunch.Disable();
         bMove.Disable(); bJump.Disable(); bDrop.Disable(); bPunch.Disable(); bThrow.Disable();
-        pause.Disable(); uiConfirm.Disable();
+        pause.Disable(); uiConfirm.Disable(); restart.Disable(); quit.Disable();
     }
 
     // ── PUBLIC PROPERTIES ────────────────────────────────────────────────────
@@ -122,4 +128,6 @@ public class InputManager : MonoBehaviour
     // System
     public bool PauseDown => pause.WasPressedThisFrame();
     public bool UIConfirmDown => uiConfirm.WasPressedThisFrame();
+    public bool RestartDown => restart.WasPressedThisFrame();
+    public bool QuitDown => quit.WasPressedThisFrame();
 }
