@@ -11,7 +11,8 @@ public class VFXManager : MonoBehaviour
     public GameObject floatingTextPrefab;
 
     [Header("Hit Sprites")]
-    public GameObject[] hitSpritePrefabs;
+    public GameObject popeyeHitSpritePrefab;   // POW
+    public GameObject blutoHitSpritePrefab;    // BAM
     public float hitSpriteLifetime = 0.4f;
 
     public void SpawnFloatingText(Vector3 position, string text)
@@ -23,16 +24,13 @@ public class VFXManager : MonoBehaviour
         }
     }
 
-    public void SpawnHitSprite(Vector3 position)
+    public void SpawnHitSprite(Vector3 position, GameObject spritePrefab)
     {
-        if (hitSpritePrefabs == null || hitSpritePrefabs.Length == 0) return;
-
-        // Select a random prefab from the array (POW or BAM)
-        GameObject selectedPrefab = hitSpritePrefabs[Random.Range(0, hitSpritePrefabs.Length)];
+        if (spritePrefab == null) return;
 
         // Spawn it slightly offset up and toward the camera so it does not clip into the character
         Vector3 spawnPos = position + new Vector3(0, 1.5f, -1f);
-        GameObject hitEffect = Instantiate(selectedPrefab, spawnPos, Quaternion.identity);
+        GameObject hitEffect = Instantiate(spritePrefab, spawnPos, Quaternion.identity);
 
         // Destroy the sprite after the designated lifetime
         Destroy(hitEffect, hitSpriteLifetime);

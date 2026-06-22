@@ -28,11 +28,14 @@ public class GameManager : MonoBehaviour
     // The win threshold — Popeye must collect exactly this many hearts to win
     private const int MAX_HEARTS = 24;
 
+    // Guards against starting the round twice (e.g. Play button clicked after Enter was already pressed)
+    private bool roundStarted = false;
+
     // ─── STATIC EVENTS ───────────────────────────────────────────────────────
     // These events are the backbone of the event-driven architecture.
     // No script polls GameManager every frame — they react only when something changes.
 
-    // Fired 3 seconds after scene load — signals all controllers to start accepting input
+    // Fired once the player presses the confirm button to start the round — signals all controllers to start accepting input
     public static event Action OnGameStart;
 
     // Fired every time Popeye takes damage — UIManager listens to refresh the HP display
@@ -53,18 +56,18 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Delay the game start by 3 seconds to give players time to read the screen
+        // Wait for the player to press the confirm button before the round begins
         StartCoroutine(StartRoundRoutine());
     }
 
     // ─── COROUTINES ──────────────────────────────────────────────────────────
 
-    // Waits 3 seconds then fires OnGameStart — all player controllers and NPCs
-    // subscribe to this event to know when they're allowed to move
+    // Waits for the player to press the confirm button (Space/Enter), then starts the round —
+    // the Play button on the start menu can also trigger this directly via StartGame()
     private IEnumerator StartRoundRoutine()
     {
-        yield return new WaitForSeconds(1f);
-        OnGameStart?.Invoke(); // The ?. (null-conditional) prevents crash if nobody is subscribed
+        yield return new WaitUntil(() => InputManager.Instance.UIConfirmDown);
+        StartGame();
     }
 
     // Waits for the player to press the confirm button (Space/Enter), then reloads the scene
@@ -77,6 +80,14 @@ public class GameManager : MonoBehaviour
     }
 
     // ─── PUBLIC API ──────────────────────────────────────────────────────────
+
+    // Called by the Play button on the start menu (or by pressing Enter/Space) to begin the round
+    public void StartGame()
+    {
+        if (roundStarted) return;
+        roundStarted = true;
+        OnGameStart?.Invoke(); // The ?. (null-conditional) prevents crash if nobody is subscribed
+    }
 
     // Called by HeartItem when Popeye collects a heart
     public void AddHeart()

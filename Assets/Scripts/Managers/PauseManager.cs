@@ -75,6 +75,13 @@ public class PauseManager : MonoBehaviour
         pausePanel.SetActive(false);  // Hide the pause UI panel
     }
 
-    // Exit the application — works in builds, does nothing in the Editor
-    public void QuitGame() => Application.Quit();
+    // Exit the application
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false; // Stop Play mode so Quit is testable in the Editor
+#else
+        Application.Quit(); // Real quit in an actual build
+#endif
+    }
 }
