@@ -7,6 +7,20 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider), typeof(Animator))]
 public class PopeyeController : MonoBehaviour
 {
+    [Header("Visual Settings")]
+    public bool enableSpinachFlicker = true;
+    public bool enableSpinachSparkles = true;
+    public Color[] spinachFlickerColors = new Color[]
+    {
+        new Color(1f, 0.2f, 0.2f),   // red
+        new Color(1f, 0.9f, 0.2f),   // yellow
+        new Color(0.2f, 1f, 0.4f),   // green
+        new Color(0.3f, 0.7f, 1f),   // blue
+        new Color(1f, 0.4f, 1f),     // magenta
+    };
+    public float spinachFlickerInterval = 0.1f;
+    public ParticleSystem spinachSparkles;   // prefab template, instantiated at runtime (not a scene object)
+
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float jumpForce = 8.5f;
@@ -47,6 +61,10 @@ public class PopeyeController : MonoBehaviour
     private Vector3 baseVisualScale;
     private Quaternion rightRotation;
     private Quaternion leftRotation;
+    private SpriteRenderer spriteRenderer;
+    private Color baseColor;
+    private Coroutine spinachFlickerRoutine;
+    private ParticleSystem sparkleInstance;
 
     // ─── UNITY LIFECYCLE ─────────────────────────────────────────────────────
 
@@ -67,6 +85,12 @@ public class PopeyeController : MonoBehaviour
         {
             visualTransform = billboard.transform;
             baseVisualScale = visualTransform.localScale;
+        }
+
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            baseColor = spriteRenderer.color;
         }
 
         if (meleeHitbox != null) meleeHitbox.enabled = false;
@@ -254,19 +278,15 @@ public class PopeyeController : MonoBehaviour
         if (isInvincible) return;
         isInvincible = true;
 
-        // Halt momentum and block input for the eating animation
-        rb.linearVelocity = Vector3.zero;
-        canMove = false;
         animator.SetTrigger("EatSpinach");
-
-        // Hold the freeze for 1 second, then apply the buff
-        Invoke(nameof(FinishEatingSpinach), 1f);
-    }
-
-    private void FinishEatingSpinach()
-    {
-        canMove = true;
         moveSpeed *= 2f;
+        if (enableSpinachFlicker && spriteRenderer != null) spinachFlickerRoutine = StartCoroutine(FlickerSpinachColors());
+        if (enableSpinachSparkles && spinachSparkles != null)
+        {
+            Vector3 feetPosition = new Vector3(col.bounds.center.x, col.bounds.min.y, col.bounds.center.z);
+            sparkleInstance = Instantiate(spinachSparkles, feetPosition, Quaternion.identity, transform);
+            sparkleInstance.Play();
+        }
 
         // 9 seconds remaining on the active buff
         Invoke(nameof(DeactivateSpinachMode), 9f);
@@ -276,5 +296,24 @@ public class PopeyeController : MonoBehaviour
     {
         isInvincible = false;
         moveSpeed /= 2f;
+        if (spinachFlickerRoutine != null) StopCoroutine(spinachFlickerRoutine);
+        if (spriteRenderer != null) spriteRenderer.color = baseColor;
+        if (sparkleInstance != null)
+        {
+            sparkleInstance.Stop();
+            Destroy(sparkleInstance.gameObject, 1f); // grace period for remaining particles to fade out
+        }
+    }
+
+    // Mario-star-style rainbow flicker for the duration of the spinach buff
+    private IEnumerator FlickerSpinachColors()
+    {
+        int index = 0;
+        while (true)
+        {
+            spriteRenderer.color = spinachFlickerColors[index % spinachFlickerColors.Length];
+            index++;
+            yield return new WaitForSeconds(spinachFlickerInterval);
+        }
     }
 }

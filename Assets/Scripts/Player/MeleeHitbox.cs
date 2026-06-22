@@ -31,7 +31,13 @@ public class MeleeHitbox : MonoBehaviour
         if (other.CompareTag(targetTag))
         {
             VFXManager vfx = FindFirstObjectByType<VFXManager>();
-            if (vfx != null) vfx.SpawnHitSprite(other.transform.position);
+            if (vfx != null)
+            {
+                GameObject hitSprite = transform.parent.GetComponent<PopeyeController>() != null
+                    ? vfx.popeyeHitSpritePrefab
+                    : vfx.blutoHitSpritePrefab;
+                vfx.SpawnHitSprite(other.transform.position, hitSprite);
+            }
 
             if (targetTag == "Player1")
             {

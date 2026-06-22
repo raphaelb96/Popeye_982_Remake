@@ -23,6 +23,10 @@ public class UIManager : MonoBehaviour
     public GameObject popeyeVictoryPanel;
     public GameObject blutoVictoryPanel;
 
+    [Header("Start Screen")]
+    // Panel shown on scene load (title + controls + "Press Enter to Start"). Hidden once the round begins.
+    public GameObject startPanel;
+
     [Header("UI Elements")]
     
 
@@ -55,6 +59,7 @@ public class UIManager : MonoBehaviour
         BlutoController.OnBottleCountChanged += UpdateHUD;
         GameManager.OnDamageTaken         += UpdateHUD; // Popeye took damage (HP changed)
         GameManager.OnGameStart += UpdateHUD; // Round started — show initial values
+        GameManager.OnGameStart += HideStartPanel; // Hide the start screen once the player presses Enter
 
         // Show the game-over screen when the game ends
         GameManager.OnGameOver            += ShowGameOverScreen;
@@ -68,6 +73,7 @@ public class UIManager : MonoBehaviour
         BlutoController.OnBottleCountChanged -= UpdateHUD;
         GameManager.OnDamageTaken         -= UpdateHUD;
         GameManager.OnGameStart           -= UpdateHUD;
+        GameManager.OnGameStart           -= HideStartPanel;
         GameManager.OnGameOver            -= ShowGameOverScreen;
     }
 
@@ -77,6 +83,7 @@ public class UIManager : MonoBehaviour
     {
         gameOverPanel.SetActive(false); // Hide the game-over panel at scene start
         UpdateHUD();                    // Populate HUD with initial values before the round starts
+        if (startPanel != null) startPanel.SetActive(true); // Show the start screen until the player presses Enter
     }
 
     // ─── HUD UPDATE ──────────────────────────────────────────────────────────
@@ -124,5 +131,13 @@ public class UIManager : MonoBehaviour
         // Show ONLY the winner's panel — hide the other
         if (popeyeVictoryPanel != null) popeyeVictoryPanel.SetActive(popeyeWins);
         if (blutoVictoryPanel != null) blutoVictoryPanel.SetActive(!popeyeWins);
+    }
+
+    // ─── START SCREEN ────────────────────────────────────────────────────────
+
+    // Called when the round begins (player pressed Enter) — hide the start screen
+    private void HideStartPanel()
+    {
+        if (startPanel != null) startPanel.SetActive(false);
     }
 }
