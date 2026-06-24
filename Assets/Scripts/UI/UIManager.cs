@@ -83,7 +83,8 @@ public class UIManager : MonoBehaviour
     {
         gameOverPanel.SetActive(false); // Hide the game-over panel at scene start
         UpdateHUD();                    // Populate HUD with initial values before the round starts
-        if (startPanel != null) startPanel.SetActive(true); // Show the start screen until the player presses Enter
+        // Show the start menu only on a fresh launch — a Restart skips it and plays immediately
+        if (startPanel != null) startPanel.SetActive(!GameManager.skipStartMenu);
     }
 
     // ─── HUD UPDATE ──────────────────────────────────────────────────────────
