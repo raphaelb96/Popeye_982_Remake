@@ -31,6 +31,10 @@ public class GameManager : MonoBehaviour
     // Guards against starting the round twice (e.g. Play button clicked after Enter was already pressed)
     private bool roundStarted = false;
 
+    // Set true once the round has started for the first time. Static = survives scene reloads,
+    // so Restart replays immediately instead of bouncing back to the start menu.
+    public static bool skipStartMenu = false;
+
     // ─── STATIC EVENTS ───────────────────────────────────────────────────────
     // These events are the backbone of the event-driven architecture.
     // No script polls GameManager every frame — they react only when something changes.
@@ -56,8 +60,9 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Wait for the player to press the confirm button before the round begins
-        StartCoroutine(StartRoundRoutine());
+        // Restart (flag set last life) → begin immediately. Fresh launch → wait for the menu.
+        if (skipStartMenu) StartGame();
+        else StartCoroutine(StartRoundRoutine());
     }
 
     // ─── COROUTINES ──────────────────────────────────────────────────────────
@@ -86,6 +91,7 @@ public class GameManager : MonoBehaviour
     {
         if (roundStarted) return;
         roundStarted = true;
+        skipStartMenu = true; // Menu passed — future restarts skip straight to gameplay
         OnGameStart?.Invoke(); // The ?. (null-conditional) prevents crash if nobody is subscribed
     }
 
