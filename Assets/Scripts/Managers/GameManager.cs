@@ -4,7 +4,7 @@
 // the end-of-game flow (freeze time → show result → wait for input → reload scene).
 //
 // Win conditions:
-//   Popeye wins → collects 24 hearts (popeyeHearts >= MAX_HEARTS)
+//   Popeye wins → collects all hearts (popeyeHearts >= heartsToWin)
 //   Bluto wins  → Popeye reaches 0 HP (popeyeHP <= 0)
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -25,8 +25,11 @@ public class GameManager : MonoBehaviour
     // Number of lives Popeye has remaining (starts at 3, lose at 0)
     public int popeyeHP = 3;
 
-    // The win threshold — Popeye must collect exactly this many hearts to win
-    private const int MAX_HEARTS = 24;
+    // The win threshold — Popeye must collect this many hearts to win.
+    // Public field so the target can be tuned from the Inspector without touching code.
+    [Header("Win Condition")]
+    [Tooltip("Number of hearts Popeye must collect to win the round")]
+    public int heartsToWin = 24;
 
     // Guards against starting the round twice (e.g. Play button clicked after Enter was already pressed)
     private bool roundStarted = false;
@@ -100,7 +103,7 @@ public class GameManager : MonoBehaviour
     {
         popeyeHearts++;
         // Check win condition immediately after incrementing
-        if (popeyeHearts >= MAX_HEARTS) EndGame(true); // Popeye wins
+        if (popeyeHearts >= heartsToWin) EndGame(true); // Popeye wins
     }
 
     // Called by MeleeHitbox (Bluto's punch) and by BlutoController via SeaHagProjectile
