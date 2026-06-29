@@ -75,13 +75,13 @@ AnimatorStateMachine:
     m_Position: {x: 670, y: -50, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1375236414007596860}
-    m_Position: {x: 690, y: 200, z: 0}
+    m_Position: {x: 810, y: 140, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1217363685157507573}
     m_Position: {x: 100, y: 250, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 2263759922071793679}
-    m_Position: {x: 650, y: 310, z: 0}
+    m_Position: {x: 670, y: 350, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: 7790075103563244683}
