@@ -65,6 +65,12 @@ public class BottleItem : MonoBehaviour
         else if (isProjectile && other.CompareTag("Player1"))
         {
             PopeyeController popeye = other.GetComponent<PopeyeController>();
+            // If Popeye is mid-punch (melee hitbox active), he swats the bottle away instead of being stunned
+            if (popeye.meleeHitbox != null && popeye.meleeHitbox.enabled)
+            {
+                Smash();
+                return;
+            }
             // Stun duration set on Popeye's Inspector for easy tuning
             popeye.ApplyStun(popeye.bottleStunDuration);
             OnBottleSmashed?.Invoke(); // Notify AudioManager → play smash SFX

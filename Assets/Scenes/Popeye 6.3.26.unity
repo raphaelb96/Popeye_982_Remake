@@ -444,8 +444,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.7714117, y: 2.4607275, z: 2.2023323}
-  m_Center: {x: -0.0027876208, y: 1.2321435, z: 0.014113559}
+  m_Size: {x: 0.9290917, y: 2.4607275, z: 2.202332}
+  m_Center: {x: -0.008534639, y: 1.2321435, z: 0.014113596}
 --- !u!1 &46851568
 GameObject:
   m_ObjectHideFlags: 0
@@ -9765,6 +9765,10 @@ PrefabInstance:
     - target: {fileID: 1224082228289012196, guid: 633c4bc3d5c56004f827c0e7db946d3d, type: 3}
       propertyPath: m_Name
       value: Portable Ladder (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1224082228289012196, guid: 633c4bc3d5c56004f827c0e7db946d3d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1997065928339708766, guid: 633c4bc3d5c56004f827c0e7db946d3d, type: 3}
       propertyPath: m_LocalScale.x
