@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 1501494953296188254}
   - component: {fileID: 7109936418794128173}
   - component: {fileID: 9164933028730897151}
-  - component: {fileID: 2439181979021563691}
-  - component: {fileID: 5430366006640348052}
+  - component: {fileID: 6287385452557269514}
+  - component: {fileID: 1026001030892212139}
   m_Layer: 0
   m_Name: HeartItem
   m_TagString: Item
@@ -31,8 +31,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 10.67, y: 4.84, z: 3.97}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 276388226858295280}
   m_Father: {fileID: 0}
@@ -108,8 +108,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &2439181979021563691
-SphereCollider:
+--- !u!65 &6287385452557269514
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -127,23 +127,30 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 2.21
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5430366006640348052
-MonoBehaviour:
+  m_Size: {x: 1.9984016, y: 1.6072426, z: 7.334813}
+  m_Center: {x: -0.16170883, y: 0.3036213, z: -0.00852108}
+--- !u!95 &1026001030892212139
+Animator:
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6026282377454712960}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95075848a5506ed41be7fb6530a061be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HeartItem
-  fallSpeed: 1
-  flutterSpeed: 2
-  flutterMagnitude: 0.5
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: bfe19b00fa4df774f9a8a64b773ddfee, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &6504068344363706831
 PrefabInstance:
   m_ObjectHideFlags: 0

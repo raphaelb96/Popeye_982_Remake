@@ -1,77 +1,157 @@
 // AudioManager.cs
-// Centralized sound manager. Listens to game events via static C# events and plays
-// the appropriate audio clip in response. Uses two separate AudioSources:
-//   - musicSource: looping background music (only one track at a time)
-//   - sfxSource:   one-shot sound effects (can overlap with music)
-// All audio clips are assigned via the Inspector — no hardcoded paths.
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
     [Header("Audio Sources")]
-    // Plays looping background music — attach an AudioSource component set to Loop = true
     public AudioSource musicSource;
-    // Plays one-shot sound effects on top of the music — Loop = false
     public AudioSource sfxSource;
+    public AudioSource variedSfxSource;
 
-    [Header("Clips")]
-    // Background music during normal gameplay (assigned by Michael in Inspector)
-    public AudioClip gameplayMusic;
-    // Replaces gameplay music for 10 seconds when Popeye eats spinach
+    [Header("Music Clips")]
+    [Tooltip("Add as many tracks here as you want. One will be picked randomly per match.")]
+    public AudioClip[] gameplayMusicTracks;
     public AudioClip spinachMusic;
-    // Short thud played when either player lands a punch
-    public AudioClip punchThud;
-    // Chime played when Popeye collects a heart
-    public AudioClip heartDing;
-    // Crash sound played when any bottle is smashed or destroyed
-    public AudioClip bottleSmash;
 
-    // ─── EVENT SUBSCRIPTIONS ────────────────────────────────────────────────
-    // Subscribe in OnEnable and unsubscribe in OnDisable to prevent memory leaks
-    // if this object is disabled/re-enabled mid-game
+    private AudioClip currentMatchMusic;
+
+    [Header("Item & UI Clips")]
+    public AudioClip heartDing;
+    public AudioClip bottleSmash;
+    public AudioClip spinachEatSFX;
+
+    [Header("Popeye Clips")]
+    public AudioClip punchThud;
+    public AudioClip popeyeJump;
+    public AudioClip popeyeHit;
+    public AudioClip popeyeWin;
+    public AudioClip popeyeWalk;
+
+    [Header("Bluto Clips")]
+    public AudioClip blutoPunch;
+    public AudioClip blutoJump;
+    public AudioClip blutoHit;
+    public AudioClip blutoThrowBottle;
+    public AudioClip blutoCollectBottle;
+    public AudioClip blutoWin;
+    public AudioClip blutoWalk;
+
+    [Header("Olive Clips")]
+    public AudioClip oliveThrow;
+    public AudioClip oliveWalk;
 
     private void OnEnable()
     {
-        GameManager.OnGameStart       += PlayGameplayMusic; // Start music after the 3s countdown
-        HeartItem.OnHeartCollected    += PlayHeartDing;     // Ding on every heart collected
-        BottleItem.OnBottleSmashed    += PlayBottleSmash;   // Crash on bottle destruction
-        PopeyeController.OnPunch      += PlayPunchThud;     // Thud on Popeye punch
-        BlutoController.OnHeavyPunch  += PlayPunchThud;     // Same thud for Bluto punch
-        SpinachItem.OnSpinachEaten    += PlaySpinachMusic;  // Switch music when spinach eaten
+        GameManager.OnGameStart += StartNewMatchMusic;
+        GameManager.OnGameOver += PlayGameOverMusic;
+
+        HeartItem.OnHeartCollected += PlayHeartDing;
+        BottleItem.OnBottleSmashed += PlayBottleSmash;
+        SpinachItem.OnSpinachEaten += PlaySpinachMusic;
+        SpinachItem.OnSpinachEaten += PlaySpinachEatSFX;
+
+        PopeyeController.OnPunch += PlayPunchThud;
+        PopeyeController.OnJump += PlayPopeyeJump;
+        PopeyeController.OnHit += PlayPopeyeHit;
+        PopeyeController.OnWalk += PlayPopeyeWalk;
+
+        BlutoController.OnHeavyPunch += PlayBlutoPunch;
+        BlutoController.OnJump += PlayBlutoJump;
+        BlutoController.OnHit += PlayBlutoHit;
+        BlutoController.OnThrowBottle += PlayBlutoThrowBottle;
+        BlutoController.OnBottleCollected += PlayBlutoCollectBottle;
+        BlutoController.OnWalk += PlayBlutoWalk;
+
+        OliveController.OnThrowHeart += PlayOliveThrow;
+        OliveController.OnWalk += PlayOliveWalk;
     }
 
     private void OnDisable()
     {
-        // Mirror of OnEnable — always unsubscribe to avoid ghost callbacks
-        GameManager.OnGameStart       -= PlayGameplayMusic;
-        HeartItem.OnHeartCollected    -= PlayHeartDing;
-        BottleItem.OnBottleSmashed    -= PlayBottleSmash;
-        PopeyeController.OnPunch      -= PlayPunchThud;
-        BlutoController.OnHeavyPunch  -= PlayPunchThud;
-        SpinachItem.OnSpinachEaten    -= PlaySpinachMusic;
+        GameManager.OnGameStart -= StartNewMatchMusic;
+        GameManager.OnGameOver -= PlayGameOverMusic;
+
+        HeartItem.OnHeartCollected -= PlayHeartDing;
+        BottleItem.OnBottleSmashed -= PlayBottleSmash;
+        SpinachItem.OnSpinachEaten -= PlaySpinachMusic;
+        SpinachItem.OnSpinachEaten -= PlaySpinachEatSFX;
+
+        PopeyeController.OnPunch -= PlayPunchThud;
+        PopeyeController.OnJump -= PlayPopeyeJump;
+        PopeyeController.OnHit -= PlayPopeyeHit;
+        PopeyeController.OnWalk -= PlayPopeyeWalk;
+
+        BlutoController.OnHeavyPunch -= PlayBlutoPunch;
+        BlutoController.OnJump -= PlayBlutoJump;
+        BlutoController.OnHit -= PlayBlutoHit;
+        BlutoController.OnThrowBottle -= PlayBlutoThrowBottle;
+        BlutoController.OnBottleCollected -= PlayBlutoCollectBottle;
+        BlutoController.OnWalk -= PlayBlutoWalk;
+
+        OliveController.OnThrowHeart -= PlayOliveThrow;
+        OliveController.OnWalk -= PlayOliveWalk;
     }
 
-    // ─── PLAYBACK METHODS ────────────────────────────────────────────────────
+    // ─── MUSIC LOGIC ─────────────────────────────────────────────────────────
 
-    // Assign and play the standard gameplay music on the looping musicSource
+    private void StartNewMatchMusic()
+    {
+        if (gameplayMusicTracks != null && gameplayMusicTracks.Length > 0)
+        {
+            int randomIndex = Random.Range(0, gameplayMusicTracks.Length);
+            currentMatchMusic = gameplayMusicTracks[randomIndex];
+        }
+
+        PlayGameplayMusic();
+    }
+
     private void PlayGameplayMusic()
     {
-        musicSource.clip = gameplayMusic;
-        musicSource.Play(); // Restarts playback from the beginning
+        if (currentMatchMusic != null)
+        {
+            musicSource.clip = currentMatchMusic;
+            musicSource.Play();
+        }
     }
 
-    // Switch to spinach music for 10 seconds, then revert to normal gameplay music
     private void PlaySpinachMusic()
     {
         musicSource.clip = spinachMusic;
         musicSource.Play();
-        // Invoke queues a method call after a delay (10f = 10 seconds = spinach buff duration)
         Invoke(nameof(PlayGameplayMusic), 10f);
     }
 
-    // PlayOneShot plays a clip without interrupting the current music or other SFX
-    // It spawns a temporary audio voice that runs in parallel
-    private void PlayHeartDing()    => sfxSource.PlayOneShot(heartDing);
-    private void PlayBottleSmash()  => sfxSource.PlayOneShot(bottleSmash);
-    private void PlayPunchThud()    => sfxSource.PlayOneShot(punchThud);
+    private void PlayGameOverMusic(bool popeyeWins)
+    {
+        musicSource.Stop();
+        if (popeyeWins) sfxSource.PlayOneShot(popeyeWin);
+        else sfxSource.PlayOneShot(blutoWin);
+    }
+
+    // ─── PITCH RANDOMIZATION HELPER ──────────────────────────────────────────
+
+    private void PlayWithRandomPitch(AudioClip clip, float minPitch = 0.85f, float maxPitch = 1.15f)
+    {
+        variedSfxSource.pitch = Random.Range(minPitch, maxPitch);
+        variedSfxSource.PlayOneShot(clip);
+    }
+
+    // ─── SFX WRAPPERS ────────────────────────────────────────────────────────
+
+    private void PlayHeartDing() => PlayWithRandomPitch(heartDing, 0.9f, 1.1f);
+    private void PlayBottleSmash() => PlayWithRandomPitch(bottleSmash, 0.9f, 1.1f);
+    private void PlaySpinachEatSFX() => PlayWithRandomPitch(spinachEatSFX, 0.9f, 1.1f);
+    private void PlayPopeyeJump() => PlayWithRandomPitch(popeyeJump, 0.9f, 1.1f);
+    private void PlayPopeyeHit() => PlayWithRandomPitch(popeyeHit, 0.9f, 1.1f);
+    private void PlayBlutoJump() => PlayWithRandomPitch(blutoJump, 0.9f, 1.1f);
+    private void PlayBlutoHit() => PlayWithRandomPitch(blutoHit, 0.9f, 1.1f);
+    private void PlayBlutoThrowBottle() => PlayWithRandomPitch(blutoThrowBottle, 0.9f, 1.1f);
+    private void PlayBlutoCollectBottle() => PlayWithRandomPitch(blutoCollectBottle, 0.9f, 1.1f);
+    private void PlayOliveThrow() => PlayWithRandomPitch(oliveThrow, 0.9f, 1.1f);
+
+    private void PlayPunchThud() => PlayWithRandomPitch(punchThud, 0.9f, 1.1f);
+    private void PlayBlutoPunch() => PlayWithRandomPitch(blutoPunch, 0.9f, 1.1f);
+    private void PlayPopeyeWalk() => PlayWithRandomPitch(popeyeWalk, 0.8f, 1.2f);
+    private void PlayBlutoWalk() => PlayWithRandomPitch(blutoWalk, 0.8f, 1.1f);
+    private void PlayOliveWalk() => PlayWithRandomPitch(oliveWalk, 0.9f, 1.1f);
 }

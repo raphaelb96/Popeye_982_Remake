@@ -18,6 +18,10 @@ public class HeartItem : MonoBehaviour
 
     // Stores the X position at spawn time — the flutter oscillates around this fixed point
     private float startX;
+    private float horizontalSpeed;
+
+    // Prevents double-collection if OnTriggerEnter fires multiple times in a single frame
+    private bool isCollected = false;
 
     // Static event fired when Popeye successfully collects this heart
     // Subscribers: GameManager.AddHeart(), AudioManager (plays ding), UIManager (updates counter)
@@ -26,12 +30,18 @@ public class HeartItem : MonoBehaviour
     // ─── UNITY LOOP ──────────────────────────────────────────────────────────
 
     // Cache the starting X position before the first Update runs
-    private void Start() => startX = transform.position.x;
+    private void Start()
+    {
+        startX = transform.position.x;
+        // Random horizontal drift — positive = right, negative = left
+        horizontalSpeed = UnityEngine.Random.Range(-1.5f, 1.5f);
+    }
 
     private void Update()
     {
         // Mathf.Sin returns a value oscillating between -1 and +1 over time
         // Multiplied by flutterMagnitude to set the maximum horizontal offset
+        startX += horizontalSpeed * Time.deltaTime;
         float newX = startX + Mathf.Sin(Time.time * flutterSpeed) * flutterMagnitude;
 
         // Move the heart: flutter horizontally + fall vertically
@@ -49,9 +59,13 @@ public class HeartItem : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // If it was already collected this frame, ignore further collisions
+        if (isCollected) return;
+
         // Only Popeye (Player1) can collect hearts — Bluto cannot
         if (other.CompareTag("Player1"))
         {
+            isCollected = true;              // Lock to prevent duplicate collection
             GameManager.Instance.AddHeart(); // Increment heart counter; triggers win if count reaches 24
             OnHeartCollected?.Invoke();      // Notify AudioManager, UIManager, etc.
             Destroy(gameObject);             // Remove the heart from the scene after collection

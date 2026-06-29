@@ -4,6 +4,7 @@
 // Currently uses TextMeshPro text fields — these will be replaced with icon-based UI
 // in the next sprint (bottle icons for Bluto, heart icons for Popeye's HP).
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour
@@ -18,15 +19,23 @@ public class UIManager : MonoBehaviour
     // Array of 3 heart icon GameObjects — shown/hidden based on Popeye's remaining HP
     public GameObject[] heartIcons;
 
+    [Header("Hearts Progress Bar")]
+    // Slider filling from 0 to heartsToWin as Popeye collects hearts (max synced in UpdateHUD)
+    public Slider heartsProgressBar;
+
     [Header("Victory Panels")]
     // Activated at game end — only the winner's panel is shown
     public GameObject popeyeVictoryPanel;
     public GameObject blutoVictoryPanel;
 
+    [Header("Start Screen")]
+    // Panel shown on scene load (title + controls + "Press Enter to Start"). Hidden once the round begins.
+    public GameObject startPanel;
+
     [Header("UI Elements")]
     
 
-    // Displays "Hearts: X / 24" — Popeye's heart collection progress
+    // Displays "Hearts: X / N" (N = GameManager.heartsToWin) — Popeye's heart collection progress
     public TextMeshProUGUI heartsText;
 
     // Displays "Popeye HP: X" — Popeye's remaining lives
@@ -51,10 +60,12 @@ public class UIManager : MonoBehaviour
     {
         // Refresh the HUD whenever any of these game events fire
         HeartItem.OnHeartCollected        += UpdateHUD; // Popeye collected a heart
-        BlutoController.OnBottleThrow += UpdateHUD; // Bluto threw a bottle (count decreased)
+        BlutoController.OnThrowBottle += UpdateHUD; // Bluto threw a bottle (count decreased)
         BlutoController.OnBottleCountChanged += UpdateHUD;
         GameManager.OnDamageTaken         += UpdateHUD; // Popeye took damage (HP changed)
         GameManager.OnGameStart += UpdateHUD; // Round started — show initial values
+        GameManager.OnGameStart += HideStartPanel; // Hide the start screen once the player presses Enter
+        GameManager.OnGameStart += ShowHeartsBar; // Heart bar is gameplay-only
 
         // Show the game-over screen when the game ends
         GameManager.OnGameOver            += ShowGameOverScreen;
@@ -64,10 +75,12 @@ public class UIManager : MonoBehaviour
     {
         // Mirror unsubscriptions — prevents ghost callbacks if this object is disabled
         HeartItem.OnHeartCollected        -= UpdateHUD;
-        BlutoController.OnBottleThrow     -= UpdateHUD;
+        BlutoController.OnThrowBottle -= UpdateHUD;
         BlutoController.OnBottleCountChanged -= UpdateHUD;
         GameManager.OnDamageTaken         -= UpdateHUD;
         GameManager.OnGameStart           -= UpdateHUD;
+        GameManager.OnGameStart           -= HideStartPanel;
+        GameManager.OnGameStart           -= ShowHeartsBar;
         GameManager.OnGameOver            -= ShowGameOverScreen;
     }
 
@@ -77,6 +90,10 @@ public class UIManager : MonoBehaviour
     {
         gameOverPanel.SetActive(false); // Hide the game-over panel at scene start
         UpdateHUD();                    // Populate HUD with initial values before the round starts
+        // Show the start menu only on a fresh launch — a Restart skips it and plays immediately
+        if (startPanel != null) startPanel.SetActive(!GameManager.skipStartMenu);
+        // Heart bar is hidden on the fresh-launch menu, shown during play (and immediately on restart)
+        if (heartsProgressBar != null) heartsProgressBar.gameObject.SetActive(GameManager.skipStartMenu);
     }
 
     // ─── HUD UPDATE ──────────────────────────────────────────────────────────
@@ -87,7 +104,7 @@ public class UIManager : MonoBehaviour
     {
         // Show heart collection progress using a C# string interpolation ($"..." syntax)
         if (heartsText != null)
-            heartsText.text = $"Hearts: {gameManager.popeyeHearts} / 24";
+            heartsText.text = $"Hearts: {gameManager.popeyeHearts} / {gameManager.heartsToWin}";
 
         // Show or hide each heart icon based on Popeye's remaining HP
         // Example: if popeyeHP = 2, icons 0/1 are shown, icon 2 is hidden
@@ -107,6 +124,13 @@ public class UIManager : MonoBehaviour
                 bottleIcons[i].SetActive(i < bluto.currentBottles);
             }
         }
+
+        // Heart progress bar — max stays in sync with heartsToWin so you only tune ONE number
+        if (heartsProgressBar != null)
+        {
+            heartsProgressBar.maxValue = gameManager.heartsToWin;
+            heartsProgressBar.value = gameManager.popeyeHearts;
+        }
     }
 
     // ─── GAME OVER SCREEN ────────────────────────────────────────────────────
@@ -124,5 +148,19 @@ public class UIManager : MonoBehaviour
         // Show ONLY the winner's panel — hide the other
         if (popeyeVictoryPanel != null) popeyeVictoryPanel.SetActive(popeyeWins);
         if (blutoVictoryPanel != null) blutoVictoryPanel.SetActive(!popeyeWins);
+    }
+
+    // ─── START SCREEN ────────────────────────────────────────────────────────
+
+    // Called when the round begins (player pressed Enter) — hide the start screen
+    private void HideStartPanel()
+    {
+        if (startPanel != null) startPanel.SetActive(false);
+    }
+
+    // Called when the round begins — reveal the heart progress bar (hidden on the start menu)
+    private void ShowHeartsBar()
+    {
+        if (heartsProgressBar != null) heartsProgressBar.gameObject.SetActive(true);
     }
 }

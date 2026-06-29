@@ -21,8 +21,11 @@ public class PauseManager : MonoBehaviour
 
     // Subscribe to OnGameStart using a lambda — sets canPause to true when the round begins
     // NOTE: lambdas cannot be unsubscribed with -= (known bug, see class comment above)
-    private void OnEnable()  => GameManager.OnGameStart += () => canPause = true;
-    private void OnDisable() => GameManager.OnGameStart -= () => canPause = false; // Does not work as intended
+    private void OnEnable() => GameManager.OnGameStart += EnablePause;
+    private void OnDisable() => GameManager.OnGameStart -= EnablePause;
+
+    // Named method so OnDisable can properly unsubscribe (lambdas cannot be unsubscribed)
+    private void EnablePause() => canPause = true;
 
     // Hide the pause panel on scene load before anything starts
     private void Start() => pausePanel.SetActive(false);
@@ -38,6 +41,20 @@ public class PauseManager : MonoBehaviour
             if (isPaused) ResumeGame(); // Second press = resume
             else          PauseGame();  // First press = pause
         }
+
+        // While paused: R restarts the round, Q quits the game
+        if (isPaused)
+        {
+            if (InputManager.Instance.RestartDown) RestartGame();
+            else if (InputManager.Instance.QuitDown) QuitGame();
+        }
+    }
+
+    // Reload the current scene to restart the round (R in the pause menu)
+    public void RestartGame()
+    {
+        Time.timeScale = 1; // Unfreeze before reloading
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     // ─── PUBLIC METHODS (also callable from UI buttons in the pause panel) ───
@@ -58,6 +75,13 @@ public class PauseManager : MonoBehaviour
         pausePanel.SetActive(false);  // Hide the pause UI panel
     }
 
-    // Exit the application — works in builds, does nothing in the Editor
-    public void QuitGame() => Application.Quit();
+    // Exit the application
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false; // Stop Play mode so Quit is testable in the Editor
+#else
+        Application.Quit(); // Real quit in an actual build
+#endif
+    }
 }
