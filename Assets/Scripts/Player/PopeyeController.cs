@@ -279,6 +279,7 @@ public class PopeyeController : MonoBehaviour
         isInvincible = true;
 
         animator.SetTrigger("EatSpinach");
+        animator.SetBool("IsSpinach", true); // flag spinach mode ON (drives SpinachWalk / SpinachPunch states)
         moveSpeed *= 2f;
         if (enableSpinachFlicker && spriteRenderer != null) spinachFlickerRoutine = StartCoroutine(FlickerSpinachColors());
         if (enableSpinachSparkles && spinachSparkles != null)
@@ -295,6 +296,7 @@ public class PopeyeController : MonoBehaviour
     private void DeactivateSpinachMode()
     {
         isInvincible = false;
+        animator.SetBool("IsSpinach", false); // flag spinach mode OFF (back to normal Walk / Punch states)
         moveSpeed /= 2f;
         if (spinachFlickerRoutine != null) StopCoroutine(spinachFlickerRoutine);
         if (spriteRenderer != null) spriteRenderer.color = baseColor;
