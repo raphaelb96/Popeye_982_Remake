@@ -36,6 +36,7 @@ public class PopeyeController : MonoBehaviour
     [Header("State")]
     public bool isGrounded;
     public bool isClimbing;
+    public bool inLadderZone; // True while overlapping a ladder trigger — blocks jump so "up" climbs instead
     public bool isStunned;
     public bool isInvincible = false;
     private bool canMove = false;
@@ -179,7 +180,7 @@ public class PopeyeController : MonoBehaviour
 
     private void HandleJumpAndDrop()
     {
-        if (isGrounded && InputManager.Instance.PopeyeJumpDown && !isClimbing)
+        if (isGrounded && InputManager.Instance.PopeyeJumpDown && !isClimbing && !inLadderZone)
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, 0);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -248,6 +249,7 @@ public class PopeyeController : MonoBehaviour
 
     public void SetClimbing(bool state)
     {
+        if (state && isStunned) return; // Can't grab a ladder while stunned (prevents re-freezing gravity mid-stun)
         isClimbing = state;
         rb.useGravity = !state;
         if (state) rb.linearVelocity = Vector3.zero;
@@ -258,6 +260,7 @@ public class PopeyeController : MonoBehaviour
     {
         if (isStunned || isInvincible) return;
         isStunned = true;
+        SetClimbing(false); // Knocked off the ladder — restore gravity so StunRoutine's grounded-wait can end
         OnHit?.Invoke();
         animator.SetTrigger("Hit");
         animator.SetBool("IsStunned", true);

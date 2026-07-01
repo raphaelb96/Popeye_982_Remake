@@ -3,48 +3,47 @@
 // Two of these exist in the scene: ScreenWrapLeft (X = -12) and ScreenWrapRight (X = 20.98).
 // Each one has its teleportDestination set to the other in the Inspector, forming a loop.
 //
-// A cooldown on the DESTINATION trigger (not the source) prevents the player from
-// being immediately teleported back after arriving — without it, they'd flicker between edges.
+// Re-trigger guard: an object teleported ONTO a trigger is ignored by that trigger until it
+// physically leaves the zone (OnTriggerExit). This lets the player turn around inside the
+// arrival zone without being bounced back — replaces the old, fragile 0.5s timer.
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ScreenWrapTrigger : MonoBehaviour
 {
-    // The ScreenWrapTrigger on the opposite side of the stage
-    // Drag the paired trigger GameObject here in the Inspector
+    // The ScreenWrapTrigger on the opposite side of the stage (set in the Inspector)
     public Transform teleportDestination;
 
-    // Countdown in seconds. When > 0, this trigger ignores all collisions.
-    // Set on the DESTINATION trigger when a teleport happens to prevent bounce-back.
-    private float cooldown = 0f;
-
-    // ─── UNITY LOOP ──────────────────────────────────────────────────────────
-
-    private void Update()
-    {
-        // Count down the cooldown each frame (frame-rate independent)
-        if (cooldown > 0) cooldown -= Time.deltaTime;
-    }
+    // Colliders that just arrived here via teleport — ignored until they leave this trigger,
+    // so turning around inside the arrival zone never sends them straight back.
+    private readonly HashSet<Collider> arrivedHere = new HashSet<Collider>();
 
     private void OnTriggerEnter(Collider other)
     {
-        // Only teleport if this trigger is not on cooldown (prevents double-teleport on arrival)
-        // Accepted tags: Player1, Player2, and Item (hearts, bottles, spinach)
-        if (cooldown <= 0 && (other.CompareTag("Player1") || other.CompareTag("Player2") || other.CompareTag("Item")))
-        {
-            // Get the X position of the destination trigger
-            Vector3 targetPos = teleportDestination.position;
+        // Skip anything that was just teleported onto this trigger — it must exit first
+        if (arrivedHere.Contains(other)) return;
 
+        // Accepted tags: Player1, Player2, and Item (hearts, bottles, spinach)
+        if (other.CompareTag("Player1") || other.CompareTag("Player2") || other.CompareTag("Item"))
+        {
             // Teleport: keep the object's current Y and Z (height and depth), only change X
+            Vector3 targetPos = teleportDestination.position;
             other.transform.position = new Vector3(
                 targetPos.x,
                 other.transform.position.y,
                 other.transform.position.z
             );
 
-            // Apply cooldown to the DESTINATION trigger (not this one) so the teleported object
-            // doesn't immediately trigger the destination and get sent back
+            // Mark it as "arrived" on the DESTINATION trigger so that trigger won't bounce it back
+            // until it has physically left the zone (cleared in OnTriggerExit)
             ScreenWrapTrigger destTrigger = teleportDestination.GetComponent<ScreenWrapTrigger>();
-            if (destTrigger != null) destTrigger.cooldown = 0.5f; // 0.5s immunity on arrival
+            if (destTrigger != null) destTrigger.arrivedHere.Add(other);
         }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        // Left the zone — allow it to wrap again next time it enters
+        arrivedHere.Remove(other);
     }
 }
