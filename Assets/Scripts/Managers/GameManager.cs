@@ -78,11 +78,11 @@ public class GameManager : MonoBehaviour
         StartGame();
     }
 
-    // Waits for the player to press the confirm button (Space/Enter), then reloads the scene
+    // Waits for the player to press Space (game-over restart — Enter excluded), then reloads the scene
     // yield return new WaitUntil() pauses the coroutine without blocking the main thread
     private IEnumerator RestartRoutine()
     {
-        yield return new WaitUntil(() => InputManager.Instance.UIConfirmDown);
+        yield return new WaitUntil(() => InputManager.Instance.GameOverConfirmDown);
         Time.timeScale = 1;   // Unfreeze time before reloading
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // Reload current scene
     }
