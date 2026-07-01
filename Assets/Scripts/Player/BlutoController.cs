@@ -27,6 +27,7 @@ public class BlutoController : MonoBehaviour
     [Header("State")]
     public bool isGrounded;
     public bool isClimbing;
+    public bool inLadderZone; // True while overlapping a ladder trigger — blocks jump so "up" climbs instead
     private bool isStunned;
     private float punchTimer = 0f;
     private float throwTimer = 0f;
@@ -172,7 +173,7 @@ public class BlutoController : MonoBehaviour
 
     private void HandleJumpAndDrop()
     {
-        if (isGrounded && InputManager.Instance.BlutoJumpDown && !isClimbing)
+        if (isGrounded && InputManager.Instance.BlutoJumpDown && !isClimbing && !inLadderZone)
         {
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, 0);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -245,6 +246,7 @@ public class BlutoController : MonoBehaviour
 
     public void SetClimbing(bool state)
     {
+        if (state && isStunned) return; // Can't grab a ladder while stunned (prevents re-freezing gravity mid-stun)
         isClimbing = state;
         rb.useGravity = !state;
         if (state) rb.linearVelocity = Vector3.zero;
@@ -265,6 +267,7 @@ public class BlutoController : MonoBehaviour
     {
         if (isStunned) return;
         isStunned = true;
+        SetClimbing(false); // Knocked off the ladder — restore gravity (parity with Popeye; no floating mid-stun)
         OnHit?.Invoke();
         OnBlutoStunned?.Invoke();
 

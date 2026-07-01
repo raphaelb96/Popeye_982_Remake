@@ -25,6 +25,7 @@ public class InputManager : MonoBehaviour
     // System actions
     private InputAction pause;     // Pause game (Escape or P)
     private InputAction uiConfirm; // Confirm UI action (Space or Enter)
+    private InputAction gameOverConfirm; // Game-over restart (Space only — Enter is Bluto's punch, avoid accidental restart)
     private InputAction restart;   // Restart round from pause menu (R)
     private InputAction quit;      // Quit game from pause menu (Q)
 
@@ -84,6 +85,10 @@ public class InputManager : MonoBehaviour
         uiConfirm = new InputAction("UIConfirm", InputActionType.Button, "<Keyboard>/space");
         uiConfirm.AddBinding("<Keyboard>/enter");
 
+        // Game-over restart accepts Space only — Enter is excluded because it doubles as Bluto's punch,
+        // which would instantly restart the moment the game-over screen appears
+        gameOverConfirm = new InputAction("GameOverConfirm", InputActionType.Button, "<Keyboard>/space");
+
         // Pause menu shortcuts: R = restart round, Q = quit game
         restart = new InputAction("Restart", InputActionType.Button, "<Keyboard>/r");
         quit = new InputAction("Quit", InputActionType.Button, "<Keyboard>/q");
@@ -97,7 +102,7 @@ public class InputManager : MonoBehaviour
     {
         pMove.Enable(); pJump.Enable(); pDrop.Enable(); pPunch.Enable();
         bMove.Enable(); bJump.Enable(); bDrop.Enable(); bPunch.Enable(); bThrow.Enable();
-        pause.Enable(); uiConfirm.Enable(); restart.Enable(); quit.Enable();
+        pause.Enable(); uiConfirm.Enable(); gameOverConfirm.Enable(); restart.Enable(); quit.Enable();
     }
 
     // Disable all input actions when this object is destroyed — prevents memory leaks
@@ -105,7 +110,7 @@ public class InputManager : MonoBehaviour
     {
         pMove.Disable(); pJump.Disable(); pDrop.Disable(); pPunch.Disable();
         bMove.Disable(); bJump.Disable(); bDrop.Disable(); bPunch.Disable(); bThrow.Disable();
-        pause.Disable(); uiConfirm.Disable(); restart.Disable(); quit.Disable();
+        pause.Disable(); uiConfirm.Disable(); gameOverConfirm.Disable(); restart.Disable(); quit.Disable();
     }
 
     // ── PUBLIC PROPERTIES ────────────────────────────────────────────────────
@@ -128,6 +133,8 @@ public class InputManager : MonoBehaviour
     // System
     public bool PauseDown => pause.WasPressedThisFrame();
     public bool UIConfirmDown => uiConfirm.WasPressedThisFrame();
+    // Game-over restart — Space only (Enter excluded so Bluto's punch key can't restart)
+    public bool GameOverConfirmDown => gameOverConfirm.WasPressedThisFrame();
     public bool RestartDown => restart.WasPressedThisFrame();
     public bool QuitDown => quit.WasPressedThisFrame();
 }

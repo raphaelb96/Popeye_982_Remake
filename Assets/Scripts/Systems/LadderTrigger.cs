@@ -22,11 +22,15 @@ public class LadderTrigger : MonoBehaviour
 
         if (other.CompareTag("Player1"))
         {
-            HandleClimbing(other.GetComponent<PopeyeController>());
+            PopeyeController p = other.GetComponent<PopeyeController>();
+            p.inLadderZone = true; // Overlapping a ladder — controller blocks jump so "up" climbs
+            HandleClimbing(p);
         }
         else if (other.CompareTag("Player2"))
         {
-            HandleClimbing(other.GetComponent<BlutoController>());
+            BlutoController b = other.GetComponent<BlutoController>();
+            b.inLadderZone = true; // Overlapping a ladder — controller blocks jump so "up" climbs
+            HandleClimbing(b);
         }
     }
 
@@ -36,11 +40,15 @@ public class LadderTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player1"))
         {
-            other.GetComponent<PopeyeController>().SetClimbing(false);
+            PopeyeController p = other.GetComponent<PopeyeController>();
+            p.inLadderZone = false; // Left the ladder — jump allowed again
+            p.SetClimbing(false);
         }
         else if (other.CompareTag("Player2"))
         {
-            other.GetComponent<BlutoController>().SetClimbing(false);
+            BlutoController b = other.GetComponent<BlutoController>();
+            b.inLadderZone = false; // Left the ladder — jump allowed again
+            b.SetClimbing(false);
         }
     }
 
